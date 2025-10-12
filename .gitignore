@@ -3,12 +3,13 @@ __pycache__/
 *.py[cod]
 
 # Ignore environment files
-.env
+.venv
 *.env
 
 # Ignore dataset and embeddings files
 datasets/
 *.pkl
+*.h5
 
 # Ignore compiled python files
 *.so

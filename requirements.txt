@@ -1,0 +1,5 @@
+opencv-python
+dlib
+paho-mqtt
+scipy
+tensorflow
