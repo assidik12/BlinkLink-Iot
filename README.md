@@ -1,16 +1,17 @@
 <div align="center">
 
-# 👁️ BlinkLink
+# 👁️🎤 BlinkLink
 
-### Hands-Free IoT Control via Facial Recognition & Eye Blinks
+### Multimodal Assistive Technology: Hands-Free & Voice-Free IoT Control
 
-**Empowering Independence Through Assistive Technology**
+**Empowering Independence Through Facial Recognition, Eye Blinks & Voice Commands**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green.svg)](https://opencv.org/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
 [![MQTT](https://img.shields.io/badge/MQTT-Protocol-blueviolet.svg)](https://mqtt.org/)
+[![Speech Recognition](https://img.shields.io/badge/Speech-Recognition-red.svg)](https://pypi.org/project/SpeechRecognition/)
 
 [Features](#-key-features) • [Demo](#-demo) • [How It Works](#-how-it-works) • [Installation](#-installation) • [Usage](#-usage) • [Contributing](#-contributing)
 
@@ -20,11 +21,24 @@
 
 ## 🎯 What is BlinkLink?
 
-BlinkLink is an **innovative assistive technology system** designed to help individuals with severe motor disabilities control their environment using **only facial gestures**. By combining cutting-edge **Computer Vision**, **Machine Learning**, and **IoT technology**, BlinkLink transforms simple eye blinks into powerful commands that can control smart home devices, computers, and more.
+BlinkLink is an **innovative multimodal assistive technology system** designed to help individuals with varying degrees of motor disabilities control their environment using **multiple interaction methods**:
+
+- 👁️ **Eye Blinks** - For users with severe motor limitations
+- 🎤 **Voice Commands** - For users who can speak but have limited mobility
+- 🔐 **Facial Recognition** - Biometric security for all users
+
+By combining cutting-edge **Computer Vision**, **Speech Recognition**, **Machine Learning**, and **IoT technology**, BlinkLink offers flexible control options that adapt to each user's unique abilities.
 
 ### The Problem We're Solving
 
-Millions of people worldwide live with conditions like ALS, cerebral palsy, or spinal cord injuries that severely limit their motor control. Traditional assistive devices often require complex setup, expensive hardware, or invasive procedures. **BlinkLink offers a non-invasive, affordable, and easy-to-use alternative** that only requires a standard webcam.
+Millions of people worldwide live with conditions like ALS, cerebral palsy, stroke, or spinal cord injuries that affect their motor control and speech in different ways. Some can speak but cannot move, others can move slightly but cannot speak, and some have both limitations.
+
+**BlinkLink's multimodal approach provides:**
+
+- ✅ **Multiple input methods** to suit different abilities
+- ✅ **Non-invasive technology** using only webcam and microphone
+- ✅ **Affordable solution** with standard hardware
+- ✅ **Privacy-focused** with local processing
 
 ---
 
@@ -32,42 +46,66 @@ Millions of people worldwide live with conditions like ALS, cerebral palsy, or s
 
 <table>
 <tr>
-<td width="50%">
+<td width="33%">
 
 ### 🔐 Biometric Security
 
 - **Facial Recognition** ensures only authorized users can access the system
 - Custom-trained TensorFlow model for accurate identification
 - Privacy-focused: All processing happens locally on your device
+- Multi-user support with individual profiles
 
 </td>
-<td width="50%">
+<td width="33%">
 
-### 👁️ Real-Time Blink Detection
+### 👁️ Eye Blink Detection
 
 - Ultra-responsive detection using **Dlib's 68-point facial landmarks**
 - **Eye Aspect Ratio (EAR) algorithm** for accurate blink recognition
 - Configurable sensitivity and thresholds
+- Ideal for users with severe motor limitations
+
+</td>
+<td width="33%">
+
+### 🎤 Voice Command Control
+
+- **Speech recognition** using Google Speech API
+- Natural language processing for intuitive commands
+- Works in noisy environments with noise filtering
+- Support for multiple languages (expandable)
 
 </td>
 </tr>
 <tr>
-<td width="50%">
+<td width="33%">
 
 ### 🌐 Wireless IoT Control
 
 - Lightweight **MQTT protocol** for instant device communication
 - Control virtually any electronic appliance via **ESP32**
 - Expandable to multiple devices and rooms
+- Real-time command execution
 
 </td>
-<td width="50%">
+<td width="33%">
 
-### 🧩 Modular Architecture
+### 🧩 Multimodal Architecture
+
+- **Adaptive input selection** based on user preference
+- Seamless switching between blink and voice modes
+- Parallel processing of vision and audio streams
+- Thread-safe command queue management
+
+</td>
+<td width="33%">
+
+### 🔧 Modular & Extensible
 
 - Clean, **object-oriented Python codebase**
-- Easy to maintain, extend, and customize
-- Separate modules for authentication and gesture detection
+- Separate modules for each modality
+- Easy to add new input methods (gestures, head tracking, etc.)
+- Plugin-based architecture for future expansion
 
 </td>
 </tr>
@@ -77,55 +115,79 @@ Millions of people worldwide live with conditions like ALS, cerebral palsy, or s
 
 ## 🎬 Demo
 
-<div align="center">
+#### **Vision Mode (Blink Control):**
 
-<!-- ![BlinkLink Demo](https://github.com/assidik12/BlinkLink/blob/main/demo.gif?raw=true) -->
+1. 📹 **Face Detection**: System identifies and tracks your face
+2. 🔐 **Authentication**: Facial recognition verifies your identity
+3. ✅ **Authorization**: Green box indicates you're cleared
+4. 👁️ **Blink Command**: Eye blink triggers device control
 
-_Watch BlinkLink in action: The system authenticates the user's face (green box), then responds to deliberate eye blinks to toggle an IoT device._
+#### **Voice Mode (Speech Control):**
 
-</div>
-
-### What You'll See:
-
-1. **Face Detection**: System identifies and tracks your face
-2. **Authentication**: Facial recognition verifies your identity
-3. **Authorization**: Green box indicates you're cleared to control devices
-4. **Blink Command**: Simple eye blink triggers IoT device (light/fan/etc.)
+1. 🎤 **Voice Activation**: Say "turn on light" or "turn off fan"
+2. 🧠 **Speech Processing**: System recognizes and parses command
+3. 📡 **MQTT Publish**: Command sent to IoT device
+4. 💡 **Device Response**: Appliance responds instantly
 
 ---
 
 ## 🔬 How It Works
 
-<div align="center">
+<!-- <div align="center">
 
-![System Architecture](architecture.png)
+![Multimodal System Architecture](architecture_multimodal.png)
 
-</div>
+</div> -->
 
-### The Journey of a Blink
+### The Multimodal Processing Pipeline
 
 ```
-👤 User Blinks → 📹 Webcam Captures → 🧠 AI Processes → 📡 MQTT Publishes → 💡 Device Responds
+👤 User Input (Blink/Voice) → 🎥 Capture (Camera/Mic) → 🧠 AI Processing → 📡 MQTT → 💡 Device Control
 ```
 
-1. **Vision Controller (Python/PC)** 🖥️
+### System Components
 
-   - Captures video feed from webcam
-   - Performs facial recognition for authentication
-   - Detects eye blinks using computer vision
-   - Publishes commands via MQTT protocol
+#### 1. **Vision Controller (Python/PC)** 🖥️
 
-2. **MQTT Broker (Cloud/Local)** ☁️
+- **Face Authentication Module** ([`face_auth.py`](vision_controller/face_auth.py))
 
-   - Acts as central message hub (e.g., HiveMQ, Mosquitto)
-   - Receives commands from Vision Controller
-   - Routes messages to appropriate IoT devices
+  - TensorFlow-based facial recognition
+  - User verification and authorization
+  - Multi-user profile support
 
-3. **IoT Device (ESP32)** 🔌
-   - Subscribes to MQTT topics
-   - Receives wireless commands
-   - Controls physical relay to switch devices
-   - Provides feedback via serial monitor
+- **Blink Detection Module** ([`blink_detector.py`](vision_controller/blink_detector.py))
+  - Eye Aspect Ratio (EAR) calculation
+  - Dlib 68-point facial landmarks
+  - Real-time blink event detection
+
+#### 2. **Voice Controller (Python/PC)** 🎤
+
+- **Voice Command Module** ([`voice_command.py`](vision_controller/voice_command.py))
+  - Speech-to-text using Google Speech Recognition
+  - Natural language command parsing
+  - Background noise filtering
+  - Multi-threaded audio processing
+
+#### 3. **Command Orchestrator** 🎯
+
+- **Main Application** ([`main.py`](main.py))
+  - Parallel processing of vision and audio streams
+  - Thread-safe command queue management
+  - State management (authorized/unauthorized)
+  - Unified MQTT publishing
+
+#### 4. **MQTT Broker (Cloud/Local)** ☁️
+
+- Central message hub (HiveMQ, Mosquitto, etc.)
+- Routes commands from multiple input modalities
+- Supports multiple device subscriptions
+
+#### 5. **IoT Device (ESP32)** 🔌
+
+- MQTT subscriber for device control
+- WiFi connectivity
+- Relay control for appliances
+- Serial debugging output
 
 ---
 
@@ -136,9 +198,10 @@ _Watch BlinkLink in action: The system authenticates the user's face (green box)
 |      Category      | Technologies                                                                                                                                                                                                                                                                                                                                                    |
 | :----------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |  **AI & Vision**   | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white) ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=flat&logo=opencv&logoColor=white) ![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=flat&logo=tensorflow&logoColor=white) ![Dlib](https://img.shields.io/badge/Dlib-008000?style=flat) |
-| **IoT & Hardware** | ![ESP32](https://img.shields.io/badge/ESP32-000000?style=flat&logo=espressif&logoColor=white)                                                                                                                                                                                                                                                                   |
+| **Speech & Audio** | ![SpeechRecognition](https://img.shields.io/badge/SpeechRecognition-FF0000?style=flat) ![PyAudio](https://img.shields.io/badge/PyAudio-blue?style=flat) ![Google Speech API](https://img.shields.io/badge/Google_Speech-4285F4?style=flat&logo=google&logoColor=white)                                                                                          |
+| **IoT & Hardware** | ![ESP32](https://img.shields.io/badge/ESP32-000000?style=flat&logo=espressif&logoColor=white) ![Arduino](https://img.shields.io/badge/Arduino-00979D?style=flat&logo=arduino&logoColor=white)                                                                                                                                                                   |
 | **Communication**  | ![MQTT](https://img.shields.io/badge/MQTT-660066?style=flat&logo=mqtt&logoColor=white) ![WiFi](https://img.shields.io/badge/WiFi-0099CC?style=flat)                                                                                                                                                                                                             |
-|  **Development**   | ![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=flat&logo=visual-studio-code&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) ![Arduino IDE](https://img.shields.io/badge/Arduino_IDE-00979D?style=flat&logo=arduino&logoColor=white)                                                          |
+|  **Development**   | ![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=flat&logo=visual-studio-code&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)                                                                                                                                                                  |
 
 </div>
 
@@ -150,7 +213,8 @@ _Watch BlinkLink in action: The system authenticates the user's face (green box)
 
 **Hardware:**
 
-- 📹 Standard USB Webcam
+- 📹 Standard USB Webcam (for vision control)
+- 🎤 Microphone (for voice control)
 - 🔧 ESP32 DevKit V1 Board
 - ⚡ 5V Relay Module
 - 🔌 USB Cable & Jumper Wires
@@ -164,7 +228,7 @@ _Watch BlinkLink in action: The system authenticates the user's face (green box)
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/assidik12/BlinkLink.git
+git clone https://github.com/yourusername/BlinkLink.git
 cd BlinkLink
 ```
 
@@ -227,7 +291,7 @@ cd BlinkLink
    - Watch the terminal for logs on face detection, authentication, and device control.
 
 3. **Interact with IoT Devices:**
-   - Use configured eye blink gestures to control connected IoT devices (e.g., turn on lights, fans).
+   - Use configured eye blink gestures or voice commands to control connected IoT devices (e.g., turn on lights, fans).
 
 ---
 
@@ -240,7 +304,7 @@ We welcome contributions to BlinkLink! Please follow these steps:
 3. **Make your changes**
 4. **Commit your changes**: `git commit -m 'Add some feature'`
 5. **Push to the branch**: `git push origin feature/YourFeature`
-6. **Open a Pull Request**
+6. \*\*Open a Pull Request`
 
 Please ensure your code follows the existing style and includes appropriate tests.
 
