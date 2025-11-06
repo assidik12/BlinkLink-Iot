@@ -3,3 +3,5 @@ dlib
 paho-mqtt
 scipy
 tensorflow
+pygame
+numpy
