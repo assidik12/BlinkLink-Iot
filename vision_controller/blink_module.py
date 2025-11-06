@@ -3,16 +3,15 @@ import numpy as np
 
 class BlinkDetector:
     """
-    Sebuah kelas untuk menangani semua logika deteksi kedipan berdasarkan
-    Eye Aspect Ratio (EAR).
+    Versi modul yang disederhanakan.
+    Fungsi utamanya adalah menghitung EAR dan status mata (terbuka/tertutup).
+    Logika durasi/counter dipindahkan ke main loop agar lebih bersih.
     """
-    def __init__(self, ear_thresh=0.23, consec_frames=3):
+    def __init__(self, ear_thresh=0.23):
         """
-        Inisialisasi detektor dengan threshold yang ditentukan.
+        Inisialisasi detektor dengan threshold EAR.
         """
         self.ear_thresh = ear_thresh
-        self.consec_frames = consec_frames
-        self.blink_counter = 0
 
     @staticmethod
     def calculate_ear(eye_landmarks):
@@ -22,11 +21,17 @@ class BlinkDetector:
         C = dist.euclidean(eye_landmarks[0], eye_landmarks[3])
         return (A + B) / (2.0 * C)
 
-    def detect_blink(self, eye_landmarks_shape):
+    def get_ear_status(self, eye_landmarks_shape):
         """
-        Memproses landmark mata untuk mendeteksi apakah sebuah kedipan baru saja terjadi.
-        Mengembalikan True jika ada kedipan, False jika tidak.
+        Menghitung EAR dan mengembalikan status mata.
+
+        Mengembalikan:
+        - is_closed (bool): True jika mata tertutup (di bawah threshold)
+        - ear (float): Nilai EAR yang dihitung
+        - left_eye (ndarray): Koordinat mata kiri
+        - right_eye (ndarray): Koordinat mata kanan
         """
+        # Indeks landmark mata dlib
         (lStart, lEnd) = (42, 48)
         (rStart, rEnd) = (36, 42)
 
@@ -36,14 +41,10 @@ class BlinkDetector:
         left_ear = self.calculate_ear(left_eye)
         right_ear = self.calculate_ear(right_eye)
         
+        # Rata-rata EAR dari kedua mata
         ear = (left_ear + right_ear) / 2.0
         
-        blink_detected = False
-        if ear < self.ear_thresh:
-            self.blink_counter += 1
-        else:
-            if self.blink_counter >= self.consec_frames:
-                blink_detected = True # Kedipan terkonfirmasi!
-            self.blink_counter = 0 # Reset counter
+        # Tentukan status mata berdasarkan threshold
+        is_closed = ear < self.ear_thresh
             
-        return blink_detected, ear, left_eye, right_eye
+        return is_closed, ear, left_eye, right_eye
