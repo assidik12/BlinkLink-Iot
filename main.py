@@ -7,13 +7,16 @@ import dlib
 # Import helper modules
 from helper.mqtt import MQTTPublisher
 import helper.config as config
+import helper.utils as utils
 
 # --- Modul Kustom ---
 try:
     from vision_controller.face_auth import FaceAuthenticator
-    from vision_controller.blink_module import BlinkDetector
-except ImportError:
-    print("ERROR: Tidak dapat menemukan modul 'vision_controller'.")
+    from preprocessing.blinker import BlinkProcessor
+    from preprocessing.swing import HeadPoseProcessor
+except ImportError as e:
+    print(f"❌ ERROR: Tidak dapat menemukan modul 'vision_controller'. Pastikan file ada.")
+    print(f"   Detail: {e}")
     sys.exit()
 
 # --- 1. Inisialisasi Library ---
@@ -21,33 +24,11 @@ pygame.init()
 pygame.mixer.init()
 
 # --- 2. Helper Functions ---
-def draw_text_center(surface, text, font, color, rect):
-    """Draw centered text on a rect"""
-    text_surface = font.render(text, True, color)
-    text_rect = text_surface.get_rect(center=rect.center)
-    surface.blit(text_surface, text_rect)
-
-
-def resize_frame_for_detection(frame, scale=config.DETECTION_SCALE):
-    """⚡ Resize frame untuk deteksi lebih cepat"""
-    small = cv2.resize(frame, None, fx=scale, fy=scale, 
-                       interpolation=cv2.INTER_LINEAR)
-    return small, scale
-
-
-def scale_rect(rect, scale):
-    """⚡ Scale dlib rectangle kembali ke ukuran asli"""
-    return dlib.rectangle(
-        int(rect.left() / scale),
-        int(rect.top() / scale),
-        int(rect.right() / scale),
-        int(rect.bottom() / scale)
-    )
-
+helper = utils.Utils(cfg=config)
 
 # --- 3. Setup Display & Assets ---
 screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
-pygame.display.set_caption("Nusa Neurotech - BCI Interface (Optimized)")
+pygame.display.set_caption("Nusa Neurotech - BCI Interface")
 clock = pygame.time.Clock()
 
 # Fonts
@@ -57,39 +38,31 @@ try:
 except:
     FONT_BUTTON = pygame.font.Font(None, 40)
 
-# --- 4. Setup Buttons ---
-buttons = []
-button_height = config.SCREEN_HEIGHT // len(config.BUTTON_LABELS)
-for i, label in enumerate(config.BUTTON_LABELS):
-    rect = pygame.Rect(config.CAM_WIDTH, i * button_height, config.UI_WIDTH, button_height)
-    buttons.append({"rect": rect, "label": label})
-
-# --- 5. Load CV Models ---
-print("INFO: Memuat model CV...")
+# --- 4. Load CV Models & Processors ---
 try:
-    authenticator = FaceAuthenticator(
-        embeddings_path=config.FACE_EMBEDDINGS_PATH,
-        model_path=config.FACE_MODEL_PATH,
-        tolerance=config.FACE_RECOGNITION_TOLERANCE
-    )
-    blinker = BlinkDetector()
     dlib_face_detector = dlib.get_frontal_face_detector()
     dlib_landmark_predictor = dlib.shape_predictor(config.DLIB_LANDMARK_MODEL_PATH)
-    print("✅ Model CV loaded")
+    
+    authenticator = FaceAuthenticator(
+        embeddings_path=config.FACE_EMBEDDINGS_PATH,
+        tolerance=config.FACE_RECOGNITION_TOLERANCE
+    )
+    blink_processor = BlinkProcessor(config)
+    head_pose_processor = HeadPoseProcessor(config)
 except Exception as e:
-    print(f"❌ Model Error: {e}")
+    print(f"❌ Model load error: {e}")
     pygame.quit()
     sys.exit()
 
-# --- 6. Setup MQTT Publisher ---
+# --- 5. Setup MQTT Publisher ---
 mqtt_publisher = MQTTPublisher(config.MQTT_BROKER, config.MQTT_PORT)
 if mqtt_publisher.connect():
     mqtt_publisher.start_publisher_thread()
 
-# --- 7. Setup Camera ---
+# --- 6. Setup Camera ---
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_BUFFERSIZE, config.CAMERA_BUFFER_SIZE)
-cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_FPS, config.TARGET_FPS)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAM_WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAM_HEIGHT)
 if not cap.isOpened():
@@ -97,84 +70,58 @@ if not cap.isOpened():
     pygame.quit()
     sys.exit()
 
-# --- 8. Main Variables ---
+# --- 7. Main Application State ---
 running = True
 is_authorized = False
 authorized_user = None
-current_scan_index = 0
-last_scan_time = pygame.time.get_ticks()
-
-# ⚡ Optimization cache
-cached_face_rects = []
-last_detection_time = 0
-last_auth_check_time = 0
 current_frame_count = 0
+last_auth_check_time = 0
 
-# ⚡ Frame caching
-cached_is_closed = False
-cached_ear = 0.3
-cached_left_eye = None
-cached_right_eye = None
+# State Machine
+current_mode = 0
+NUM_MODES = len(config.BUTTON_LABELS)
 
-# ✅ Blink Duration Tracking
-eyes_closed_start_time = None
-last_mqtt_trigger_time = 0
-mqtt_triggered = False
+# Optimization cache
+cached_face_rects = []
 
-# Wajah dengan lebar < 100 pixel terlalu kecil dan tidak akurat
-# Anda mungkin perlu menyesuaikan nilai ini
-MIN_FACE_WIDTH_FOR_BLINK = 100 
-
-
-print("\n🚀 Aplikasi BCI (OPTIMIZED MODE) Started")
-
-# --- 9. Main Loop ---
+# --- 8. Main Loop ---
 while running:
     current_time = pygame.time.get_ticks()
     current_frame_count += 1
-
-    # Event Handling
+    
+    # --- 8.1 Event Handling (Pygame) ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            if event.key == pygame.K_m:
+                current_mode = (current_mode + 1) % NUM_MODES
 
-    # UI Scanner Logic
-    if current_time - last_scan_time > config.SCAN_INTERVAL_MS:
-        current_scan_index = (current_scan_index + 1) % len(buttons)
-        last_scan_time = current_time
-
-    # ⚡ Frame Processing
+    # --- 8.2 Frame Processing ---
     ret, frame = cap.read()
-    if ret:
+    if not ret:
+        frame_surface = pygame.Surface((config.CAM_WIDTH, config.CAM_HEIGHT))
+        frame_surface.fill((0, 0, 0))
+    else:
         frame = cv2.resize(frame, (config.CAM_WIDTH, config.CAM_HEIGHT))
-        frame = cv2.flip(frame, 1)
+        frame = cv2.flip(frame, 1) # Cerminkan frame
 
         found_authorized_user_this_frame = False
-
-        # ⚡ Face Detection (Skip frames)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # Konversi sekali saja
+        
+        # --- 8.3 Face Detection (Cache) ---
         if current_frame_count % config.FACE_DETECTION_SKIP_FRAMES == 0:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            small_gray, scale = resize_frame_for_detection(gray)
+            small_gray, scale = utils.resize_frame_for_detection(gray)
             face_rects_small = dlib_face_detector(small_gray, 0)
-            cached_face_rects = [scale_rect(r, config.DETECTION_SCALE) for r in face_rects_small]
-            last_detection_time = current_time
+            cached_face_rects = [utils.scale_rect(r, config.DETECTION_SCALE) for r in face_rects_small]
 
-        # Process detected faces
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-        is_closed_this_frame = cached_is_closed
-        ear_this_frame = cached_ear
-        left_eye_this_frame = cached_left_eye
-        right_eye_this_frame = cached_right_eye
-        
-        eyes_closed_duration = 0
-        show_progress_bar = False
-
+        # --- 8.4 State Controller Logic (per wajah) ---
         for rect in cached_face_rects:
-            # ⚡ Auth check (Skip frames)
+            (x, y, w, h) = (rect.left(), rect.top(), rect.width(), rect.height())
+            
+            # --- 8.4.1 Otentikasi (Cache) ---
             if current_frame_count % config.AUTH_CHECK_SKIP_FRAMES == 0:
                 name, distance = authenticator.recognize_face(frame, rect)
                 if name != "Unknown":
@@ -182,119 +129,124 @@ while running:
                     is_authorized = True
                     authorized_user = name
                     last_auth_check_time = current_time
+                    
+                    # Kalibrasi Head Pose jika belum
+                    if not head_pose_processor.is_calibrated:
+                        shape = blink_processor.cached_shape # Gunakan shape dari blinker
+                        if shape is None: # Jika blinker belum jalan, ambil shape baru
+                            landmarks = dlib_landmark_predictor(gray, rect)
+                            shape = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(68)])
+                        head_pose_processor.calibrate(shape)
 
-            (x, y, w, h) = (rect.left(), rect.top(), rect.width(), rect.height())
-
-            # Authorized user processing
+            # --- 8.4.2 Proses Gestur (Hanya jika Terotorisasi) ---
             if is_authorized and authorized_user:
                 
-                if w < MIN_FACE_WIDTH_FOR_BLINK:
-                    cv2.putText(frame, "Jarak terlalu jauh untuk deteksi mata", (x, y - 10), FONT_CV, 0.5, (0, 0, 255), 2)
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                    eyes_closed_start_time = None
-                    show_progress_bar = False
-                    # Continue to next face
-                    is_closed_this_frame = False
-                else:
-                    # ⚡ Landmark prediction (Skip frames)
-                    if current_frame_count % config.LANDMARK_SKIP_FRAMES == 0:
-                        landmarks = dlib_landmark_predictor(gray, rect)
-                        shape = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(68)])
-                        is_closed_this_frame, ear_this_frame, left_eye_this_frame, right_eye_this_frame = blinker.get_ear_status(shape)
+                # --- A. Jalankan Prosesor Gestur Universal (Blink) ---
+                blink_signal, blink_data, current_shape = blink_processor.process_frame(
+                    gray, rect, dlib_landmark_predictor, current_time, current_frame_count
+                )
+                
+                # --- B. Cek Sinyal Prioritas Tinggi (Ganti Mode) ---
+                if blink_signal == "TRIGGER_MODE_SWITCH":
+                    current_mode = (current_mode + 1) % NUM_MODES
+                
+                # --- C. Cek Sinyal Aksi (Berdasarkan Mode Saat Ini) ---
+                elif blink_signal == "TRIGGER_ACTION":
+                    if current_mode == 0: # MODE: LAMPU
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_LIGHT, "TOGGLE")
+                    elif current_mode == 2: # MODE: MUSIK
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_MUSIC, "play_pause")
+                
+                # MODE TV: Gunakan Head Pose
+                if current_mode == 1:
+                    head_signal, _ = head_pose_processor.process_frame(current_shape, current_time)
+                    if head_signal == "VOL_PLUS":
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_TV, "vol_plus")
+                    elif head_signal == "VOL_MINUS":
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_TV, "vol_min")
+                    elif head_signal == "CH_PLUS":
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_TV, "ch_up")
+                    elif head_signal == "CH_MINUS":
+                        mqtt_publisher.publish_async(config.MQTT_TOPIC_TV, "ch_down")
 
-                        cached_is_closed = is_closed_this_frame
-                        cached_ear = ear_this_frame
-                        cached_left_eye = left_eye_this_frame
-                        cached_right_eye = right_eye_this_frame
-
-                    # ✅ Blink Duration Logic
-                    if is_closed_this_frame:
-                        # 2 Mata tertutup
-                        if eyes_closed_start_time is None:
-                            eyes_closed_start_time = current_time
-                            print(f"👁️ Mata mulai tertutup...")
-                            
-                        eyes_closed_duration = current_time - eyes_closed_start_time
-                        show_progress_bar = True
-                    else:
-                        if eyes_closed_start_time is not None:
-                            closed_duration = current_time - eyes_closed_start_time
-                            print(f"👁️ Mata dibuka, durasi: {closed_duration}ms")
-
-                            if (closed_duration >= config.BLINK_DURATION_THRESHOLD_MS and
-                                (current_time - last_mqtt_trigger_time) > config.BLINK_COOLDOWN_MS):
-
-                                print(f"✅ TRIGGER! Mata tertutup {closed_duration}ms")
-                                mqtt_publisher.publish_async(config.MQTT_TOPIC, config.MQTT_MESSAGE)
-                                last_mqtt_trigger_time = current_time
-
-                            eyes_closed_start_time = None
-
-                # Visual Feedback
+                # --- 8.4.3 Gambar Umpan Balik Visual (Auth & Gestur) ---
                 cv2.rectangle(frame, (x, y), (x + w, y + h), config.COLOR_STATUS_AUTH, 2)
                 cv2.putText(frame, f"AUTH: {authorized_user}", (x, y - 10), FONT_CV, 0.7, config.COLOR_STATUS_AUTH, 2)
                 
-                if left_eye_this_frame is not None and right_eye_this_frame is not None:
-                    eye_color = (0, 255, 0) if is_closed_this_frame else (255, 0, 0)
-                    cv2.drawContours(frame, [cv2.convexHull(left_eye_this_frame)], -1, eye_color, 1)
-                    cv2.drawContours(frame, [cv2.convexHull(right_eye_this_frame)], -1, eye_color, 1)
+                # Gambar mata
+                if blink_data["left_eye"] is not None:
+                    eye_color = (0, 255, 0) if blink_data["is_closed"] else (255, 0, 0)
+                    cv2.drawContours(frame, [cv2.convexHull(blink_data["left_eye"])], -1, eye_color, 1)
+                    cv2.drawContours(frame, [cv2.convexHull(blink_data["right_eye"])], -1, eye_color, 1)
                 
-                cv2.putText(frame, f"EAR: {ear_this_frame:.2f}", (x, y + h + 15), FONT_CV, 0.5, (255, 255, 255), 1)
+                # Gambar Progress Bar Kedipan
+                if blink_data["progress_percentage"] > 0:
+                    percentage = blink_data["progress_percentage"]
+                    bar_x, bar_y = x, y + h + 30
+                    bar_w, bar_h = 150, 20
+                    
+                    # Background
+                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (50, 50, 50), -1)
+                    
+                    # Progress
+                    progress_w = int(bar_w * percentage / 100)
+                    bar_color = (0, 255, 0) if percentage >= 100 else (0, 165, 255)
+                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + progress_w, bar_y + bar_h), bar_color, -1)
+                    
+                    # Border
+                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (255, 255, 255), 1)
+                    
+                    # Text
+                    text = "MODE" if percentage > 50 else "ACTION"
+                    cv2.putText(frame, f"{text} {percentage}%", (bar_x, bar_y - 5), FONT_CV, 0.5, (255, 255, 255), 1)
 
-                # Progress Bar
-                if show_progress_bar:
-                    progress_percentage = min(100, int(eyes_closed_duration / config.BLINK_DURATION_THRESHOLD_MS * 100))
-                    bar_width = 150
-                    bar_height = 20
-                    bar_x = x
-                    bar_y = y + h + 30
-                    
-                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), (50, 50, 50), -1)
-                    
-                    progress_width = int(bar_width * progress_percentage / 100)
-                    bar_color = (0, 255, 0) if progress_percentage >= 100 else (0, 165, 255)
-                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + progress_width, bar_y + bar_height), bar_color, -1)
-                    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), (255,255,255), 1)
-                    
-                    cv2.putText(frame, f"Tahan... {progress_percentage}%", (bar_x, bar_y - 5), FONT_CV, 0.5, (255, 255, 255), 1)
-
-            else:
+            else: # Wajah tidak terotorisasi
                 cv2.rectangle(frame, (x, y), (x + w, y + h), config.COLOR_STATUS_UNAUTH, 2)
                 cv2.putText(frame, "UNAUTH", (x, y - 10), FONT_CV, 0.7, config.COLOR_STATUS_UNAUTH, 2)
 
-        # Reset auth
+        # --- 8.5 Reset Otorisasi ---
         if not found_authorized_user_this_frame and (current_time - last_auth_check_time) > 1000:
             is_authorized = False
             authorized_user = None
-            eyes_closed_start_time = None
-            mqtt_triggered = False
+            head_pose_processor.is_calibrated = False # Reset kalibrasi
 
-        # Status Text
+        # --- 8.6 Gambar Umpan Balik Status Global ---
         status_text = f"AUTH: {authorized_user}" if is_authorized else "WAITING"
         status_color = config.COLOR_STATUS_AUTH if is_authorized else config.COLOR_STATUS_WAITING
         cv2.putText(frame, status_text, (10, 30), FONT_CV, 0.8, status_color, 2)
+        
+        # Tampilkan Mode Aktif
+        if is_authorized:
+            mode_text = f"MODE: {config.BUTTON_LABELS[current_mode]}"
+            cv2.putText(frame, mode_text, (10, 65), FONT_CV, 0.8, (255, 255, 255), 2)
 
-        # Pygame Conversion
+        # --- 8.7 Konversi ke Pygame Surface ---
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_surface = pygame.surfarray.make_surface(frame_rgb.swapaxes(0, 1))
 
-    else:
-        frame_surface = pygame.Surface((config.CAM_WIDTH, config.CAM_HEIGHT))
-        frame_surface.fill((0, 0, 0))
-
-    # Rendering
+    # --- 8.8 Rendering (Pygame) ---
     screen.fill(config.COLOR_UI_BACKGROUND)
     screen.blit(frame_surface, (0, 0))
 
-    for i, button in enumerate(buttons):
-        pygame.draw.rect(screen, config.COLOR_BUTTON, button["rect"])
-        pygame.draw.rect(screen, config.COLOR_BUTTON_TEXT, button["rect"], 2)
-        draw_text_center(screen, button["label"], FONT_BUTTON, config.COLOR_BUTTON_TEXT, button["rect"])
+    # Render tombol-tombol UI
+    button_height = config.SCREEN_HEIGHT // len(config.BUTTON_LABELS)
+    for i, label in enumerate(config.BUTTON_LABELS):
+        rect = pygame.Rect(config.CAM_WIDTH, i * button_height, config.UI_WIDTH, button_height)
+        
+        # Highlight tombol yang modenya aktif
+        if i == current_mode and is_authorized:
+            pygame.draw.rect(screen, config.COLOR_BUTTON_ACTIVE, rect)
+            pygame.draw.rect(screen, config.COLOR_BUTTON_TEXT, rect, 4)
+        else:
+            pygame.draw.rect(screen, config.COLOR_BUTTON, rect)
+            pygame.draw.rect(screen, config.COLOR_BUTTON_TEXT, rect, 2)
+            
+        helper.draw_text_center(screen, label, FONT_BUTTON, config.COLOR_BUTTON_TEXT, rect)
 
     pygame.display.flip()
     clock.tick(config.TARGET_FPS)
 
-# --- 10. Cleanup ---
+# --- 9. Cleanup ---
 print("🛑 Shutting down...")
 cap.release()
 mqtt_publisher.stop()
