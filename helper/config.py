@@ -15,9 +15,11 @@ FACE_MODEL_PATH = "./face_embedding_model.h5" # (Akan dihapus jika kita hanya pa
 MQTT_BROKER = "broker.hivemq.com"
 MQTT_PORT = 1883
 # Topik MQTT untuk setiap mode state
-MQTT_TOPIC_LIGHT = "nusaneuro/control/light"
+MQTT_TOPIC_LIGHT = "iot/commands/eyeblink"
 MQTT_TOPIC_TV = "nusaneuro/control/tv"
 MQTT_TOPIC_MUSIC = "nusaneuro/control/music"
+MQTT_TOPIC_ALERT = "nusaneuro/alert" # Topik Bahaya
+MQTT_TOPIC_CONFIG = "nusaneuro/config/update" # Topik untuk update setting dari web
 
 # --- 3. Screen, Camera & UI Settings ---
 # Pengaturan Tampilan Pygame
@@ -59,15 +61,20 @@ SCAN_INTERVAL_MS = 2500  # Interval scanner button (ms)
 FACE_DETECTION_SKIP_FRAMES = 3   # Deteksi wajah setiap 3 frame
 AUTH_CHECK_SKIP_FRAMES = 5       # Cek otentikasi setiap 5 frame
 LANDMARK_SKIP_FRAMES = 2         # Prediksi landmark setiap 2 frame (untuk kedipan)
-DETECTION_SCALE = 0.5            # Skala gambar untuk deteksi (0.5 = 50% lebih kecil)
+DETECTION_SCALE = 1.0            # Skala gambar untuk deteksi (0.5 = 50% lebih kecil)
 CAMERA_BUFFER_SIZE = 1           # Mengurangi latensi kamera
 
 # --- 5. Gesture Control Settings ---
 # Pengaturan durasi untuk gestur kedipan
 ACTION_BLINK_DURATION_MS = 2000     # 2 detik tahan kedip untuk "Aksi"
-MODE_SWITCH_BLINK_DURATION_MS = 5000  # 5 detik tahan kedip untuk "Ganti Mode"
+MODE_SWITCH_BLINK_DURATION_MS = 4000  # 4 detik tahan kedip untuk "Ganti Mode"
+SOS_BLINK_DURATION_MS = 6000          # 6 detik tahan kedip untuk "SOS BAHAYA"
 BLINK_COOLDOWN_MS = 1500              # 1.5 detik jeda setelah satu aksi
-EAR_THRESHOLD = 0.23                  # Ambang batas EAR
+EAR_THRESHOLD_CLOSE = 0.12            # Batas Bawah (Harus lebih kecil dari ini untuk "TUTUP")
+EAR_THRESHOLD_OPEN = 0.25             # Batas Atas (Harus lebih besar dari ini untuk "BUKA")
+
+#0.18
+#0.25
 
 # --- PENGATURAN SENSITIVITAS GERAK KEPALA (FIXED) ---
 HEAD_GESTURE_COOLDOWN_MS = 2000
@@ -86,4 +93,4 @@ YAW_RIGHT_THRESHOLD = 0.15        # Menengok Kanan (Positif)
 # --- 6. Face Recognition Settings ---
 # Pengaturan untuk model FaceNet
 FACE_RECOGNITION_TOLERANCE = 1.0  # Jarak maksimum. (0.9 lebih ketat, 1.1 lebih longgar)
-MIN_FACE_WIDTH_FOR_BLINK = 100    # Wajah < 100px terlalu kecil untuk deteksi mata
+MIN_FACE_WIDTH_FOR_BLINK = 60    # Wajah < 100px terlalu kecil untuk deteksi mata

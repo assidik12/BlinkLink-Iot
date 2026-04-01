@@ -1,7 +1,11 @@
-opencv-python
-dlib
+tensorflow==2.18.0
+mediapipe==0.10.14
+numpy<2.0.0
+opencv-python<4.10.0.84
 paho-mqtt
 scipy
-tensorflow
 pygame
-numpy
+flask
+keras-facenet
+mtcnn
+gTTS
