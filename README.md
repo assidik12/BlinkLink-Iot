@@ -79,9 +79,9 @@ Millions of people worldwide live with conditions like ALS, cerebral palsy, or s
 
 <div align="center">
 
-<!-- ![BlinkLink Demo](https://github.com/assidik12/BlinkLink/blob/main/demo.gif?raw=true) -->
+[![BlinkLink Demo Video](https://img.shields.io/badge/🎥_Watch_Demo_on-LinkedIn-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/posts/ahmad-sofi-sidik_neurotech-bci-iot-activity-7392400198737559552-Arg2?utm_source=share&utm_medium=member_desktop&rcm=ACoAAENGFPgB4uy9rK2c06iPe3EkMmylkvzKKjk)
 
-_Watch BlinkLink in action: The system authenticates the user's face (green box), then responds to deliberate eye blinks to toggle an IoT device._
+_Watch BlinkLink in action: The system identifies the user, verifies identity, and responds to eye blinks to control IoT devices._
 
 </div>
 
@@ -109,14 +109,12 @@ _Watch BlinkLink in action: The system authenticates the user's face (green box)
 ```
 
 1. **Vision Controller (Python/PC)** 🖥️
-
    - Captures video feed from webcam
    - Performs facial recognition for authentication
    - Detects eye blinks using computer vision
    - Publishes commands via MQTT protocol
 
 2. **MQTT Broker (Cloud/Local)** ☁️
-
    - Acts as central message hub (e.g., HiveMQ, Mosquitto)
    - Receives commands from Vision Controller
    - Routes messages to appropriate IoT devices
@@ -153,13 +151,24 @@ _Watch BlinkLink in action: The system authenticates the user's face (green box)
 - 📹 Standard USB Webcam
 - 🔧 ESP32 DevKit V1 Board
 - ⚡ 5V Relay Module
+- � IR LED (for TV/STB control)
 - 🔌 USB Cable & Jumper Wires
+
+### Hardware Wiring (ESP32)
+
+| Component        | ESP32 Pin |
+| :--------------- | :-------- |
+| **Relay Module** | GPIO 2    |
+| **IR LED**       | GPIO 4    |
+| **VCC**          | 5V / VIN  |
+| **GND**          | GND       |
 
 **Software:**
 
 - 🐍 Python 3.9 or higher
 - 🔧 Arduino IDE 1.8.13+
-- 💻 Windows/Linux/macOS
+- 💻 Windows: [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) & `CMake` (Required for `dlib`)
+- 💻 Linux: `build-essential`, `cmake`, `libopenblas-dev`, `liblapack-dev`
 
 ### Step 1: Clone the Repository
 
@@ -177,12 +186,10 @@ cd BlinkLink
    ```
 
 2. **Download Dlib's facial landmark model:**
-
    - [Download here](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2)
    - Extract and place `shape_predictor_68_face_landmarks.dat` in the `vision_controller/` directory.
 
 3. **Collect and Encode Your Face Data:**
-
    - Run the following command and follow the on-screen instructions to capture and encode your face data:
 
    ```bash
@@ -192,11 +199,9 @@ cd BlinkLink
 ### Step 3: Set Up IoT Device (ESP32)
 
 1. **Install ESP32 Board in Arduino IDE:**
-
    - Follow this [guide](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide/) to add ESP32 support to your Arduino IDE.
 
 2. **Install Required Libraries:**
-
    - Open Arduino IDE, go to `Sketch > Include Library > Manage Libraries...`
    - Search for and install the following libraries:
      - `PubSubClient` by Nick O'Leary
@@ -222,12 +227,31 @@ cd BlinkLink
    python main.py
    ```
 
-2. **Monitor Output:**
+2. **Simulation Mode (Without Hardware):**
+   If you don't have an ESP32, you can run the virtual device to test the system:
 
+   ```bash
+   python iot_devices/iot_device_virtual.py
+   ```
+
+3. **Monitor via Web Dashboard:**
+   Open `monitoring_ui/index.html` in your web browser to view the real-time status and logs of the system.
+
+4. **Monitor Output:**
    - Watch the terminal for logs on face detection, authentication, and device control.
 
-3. **Interact with IoT Devices:**
+5. **Interact with IoT Devices:**
    - Use configured eye blink gestures to control connected IoT devices (e.g., turn on lights, fans).
+
+---
+
+## ⚙️ Configuration
+
+You can customize the system behavior by editing `helper/config.py`:
+
+- **MQTT Settings**: Change `MQTT_BROKER` and topics to match your setup.
+- **UI Settings**: Adjust `CAM_WIDTH`, `SCREEN_HEIGHT`, and `TARGET_FPS`.
+- **Thresholds**: Sensitivity for blink detection can be tuned in the detection module.
 
 ---
 
@@ -256,7 +280,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions or feedback, please reach out:
 
-- **Your Name** - [sofi.sidik12@gmail.com](mailto:sofi.sidik12@gmail.com)
+- **Ahmad Sofi Sidik** - [sofi.sidik12@gmail.com](mailto:sofi.sidik12@gmail.com)
 - **LinkedIn:** [https://www.linkedin.com/in/ahmad-sofi-sidik/](https://www.linkedin.com/in/ahmad-sofi-sidik/)
 
 ---

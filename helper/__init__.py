@@ -1,5 +1,5 @@
 """
-Helper package untuk Nusa Neurotech BCI System
+Helper package untuk BlinkLink BCI System
 """
 from .mqtt import MQTTClientHandler
 from . import config

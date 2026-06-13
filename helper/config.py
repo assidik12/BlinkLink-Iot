@@ -1,5 +1,5 @@
 """
-Konfigurasi Global untuk Sistem Nusa Neurotech BCI.
+Konfigurasi Global untuk Sistem BlinkLink BCI.
 File ini berisi semua konstanta dan pengaturan
 yang digunakan di seluruh aplikasi.
 """
@@ -28,7 +28,7 @@ UI_WIDTH = 200
 SCREEN_WIDTH = CAM_WIDTH + UI_WIDTH
 SCREEN_HEIGHT = 600
 CAM_HEIGHT = SCREEN_HEIGHT
-TARGET_FPS = 30 # Target frame rate untuk aplikasi
+TARGET_FPS = 15 # Target frame rate untuk aplikasi
 
 # Label untuk tombol-tombol di UI
 BUTTON_LABELS = ["LAMPU", "TELEVISI", "AC"] # Sesuaikan dengan MODE_LABELS

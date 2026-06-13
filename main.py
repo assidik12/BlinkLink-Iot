@@ -69,7 +69,6 @@ def start_flask_app():
 # --- 2. Inisialisasi Library ---
 pygame.init()
 pygame.mixer.init()
-
 # --- 3. Helper Functions ---
 helper_utils = utils.Utils(cfg=config)
 sound_manager = utils.SoundManager()
@@ -233,7 +232,8 @@ while running:
                 # Enhance hanya pada area wajah
                 roi = frame[y:y+h, x:x+w]
                 if roi.size > 0:
-                    enhanced_roi = low_light_enhancer.enhance(roi)
+                    # Menggunakan apply_gamma agar warna lebih natural dan tanpa noise berlebih
+                    enhanced_roi = low_light_enhancer.apply_gamma(roi)
                     frame[y:y+h, x:x+w] = enhanced_roi
                     # Visual feedback
                     cv2.putText(frame, "ENHANCED", (x, y - 25), FONT_CV, 0.5, (0, 255, 255), 1)
