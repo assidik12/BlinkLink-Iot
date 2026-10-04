@@ -127,6 +127,32 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 
 ---
 
+## 📊 Benchmark Results
+
+The following benchmark was run on **October 2, 2026 at 20:06:36**, using a
+frame size of **800×600**. Inference times are reported in milliseconds per
+operation; the FPS equivalent is calculated from the mean inference time.
+
+| Component | Mean | Median | P95 | Max | FPS equivalent | Model size | Status |
+| :-- | --: | --: | --: | --: | --: | --: | :-- |
+| MediaPipe Face Mesh | 5.4825 ms | 5.4590 ms | 5.9318 ms | 6.1071 ms | 182.40 | 27.84 MB | ✅ OK |
+| FaceNet (`keras-facenet`) | 141.9671 ms | 142.1137 ms | 147.4230 ms | 148.6545 ms | 7.04 | 90.55 MB | ✅ OK |
+| EAR Blink Detection | 0.0213 ms | 0.0212 ms | 0.0220 ms | 0.0230 ms | 47,021.21 | — | ✅ OK |
+| Haar Cascade | 16.0029 ms | 16.2449 ms | 16.3743 ms | 16.4599 ms | 62.49 | 0.89 MB | ✅ OK |
+| CLAHE Enhancement | 4.1988 ms | 4.1881 ms | 4.3440 ms | 4.4153 ms | 238.16 | — | ✅ OK |
+
+### Benchmark Notes
+
+- **Dlib HOG Detector** and **Dlib 68-Landmark** were not benchmarked because
+  the `dlib` module was not installed in the test environment.
+- Memory usage was not measured because `psutil` was unavailable.
+- FaceNet produced a **512-dimensional embedding** from a **160×160** input.
+- The complete raw result is available in
+  [`benchmark_results.json`](benchmark_results.json).
+- For project structure details, see [`PROJECT_STRUCTURE.md`](../PROJECT_STRUCTURE.md).
+
+---
+
 ## 🛠️ Technology Stack
 
 <div align="center">
@@ -224,18 +250,22 @@ cd BlinkLink
 1. **Start the Vision Controller:**
 
    ```bash
-   python main.py
+   # Dari root directory project
+   python run.py
+   
+   # Atau langsung dari src
+   python src/main.py
    ```
 
 2. **Simulation Mode (Without Hardware):**
    If you don't have an ESP32, you can run the virtual device to test the system:
 
    ```bash
-   python iot_devices/iot_device_virtual.py
+   python src/iot_devices/iot_device_virtual.py
    ```
 
 3. **Monitor via Web Dashboard:**
-   Open `monitoring_ui/index.html` in your web browser to view the real-time status and logs of the system.
+   Open `src/ui/index.html` in your web browser to view the real-time status and logs of the system.
 
 4. **Monitor Output:**
    - Watch the terminal for logs on face detection, authentication, and device control.
@@ -247,7 +277,7 @@ cd BlinkLink
 
 ## ⚙️ Configuration
 
-You can customize the system behavior by editing `helper/config.py`:
+You can customize the system behavior by editing `src/helper/config.py`:
 
 - **MQTT Settings**: Change `MQTT_BROKER` and topics to match your setup.
 - **UI Settings**: Adjust `CAM_WIDTH`, `SCREEN_HEIGHT`, and `TARGET_FPS`.

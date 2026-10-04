@@ -6,9 +6,11 @@ yang digunakan di seluruh aplikasi.
 
 # --- 1. Model & Asset Paths ---
 # Path ke file-file model yang dibutuhkan
-DLIB_LANDMARK_MODEL_PATH = "./shape_predictor_68_face_landmarks.dat"
-FACE_EMBEDDINGS_PATH = "./face_embeddings_tf.pkl"
-FACE_MODEL_PATH = "./face_embedding_model.h5" # (Akan dihapus jika kita hanya pakai keras-facenet)
+import os
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+DLIB_LANDMARK_MODEL_PATH = os.path.join(_BASE_DIR, "models", "shape_predictor_68_face_landmarks.dat")
+FACE_EMBEDDINGS_PATH = os.path.join(_BASE_DIR, "models", "face_embeddings_tf.pkl")
+FACE_MODEL_PATH = os.path.join(_BASE_DIR, "models", "face_embedding_model.h5")
 
 # --- 2. MQTT Configuration ---
 # Pengaturan untuk koneksi ke MQTT Broker

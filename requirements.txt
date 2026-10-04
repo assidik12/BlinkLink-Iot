@@ -9,3 +9,4 @@ flask
 keras-facenet
 mtcnn
 gTTS
+dlib

@@ -1,0 +1,100 @@
+{
+  "results": {
+    "MediaPipe Face Mesh": {
+      "inference": {
+        "mean_ms": 6.0255,
+        "median_ms": 6.013,
+        "min_ms": 5.7917,
+        "max_ms": 6.2868,
+        "p95_ms": 6.2472,
+        "p99_ms": 6.2791,
+        "fps_equivalent": 165.96
+      },
+      "model_size_mb": 27.84,
+      "status": "OK"
+    },
+    "FaceNet (keras-facenet)": {
+      "inference": {
+        "mean_ms": 183.8226,
+        "median_ms": 180.0571,
+        "min_ms": 169.8803,
+        "max_ms": 238.9554,
+        "p95_ms": 205.6567,
+        "p99_ms": 238.9554,
+        "fps_equivalent": 5.44
+      },
+      "model_size_mb": 90.55,
+      "embedding_dim": 512,
+      "input_size": "160x160",
+      "status": "OK"
+    },
+    "EAR Blink Detection": {
+      "inference": {
+        "mean_ms": 0.0266,
+        "median_ms": 0.0261,
+        "min_ms": 0.0258,
+        "max_ms": 0.035,
+        "p95_ms": 0.0314,
+        "p99_ms": 0.0336,
+        "fps_equivalent": 37543.33
+      },
+      "model_size_mb": 0.0,
+      "status": "OK"
+    },
+    "Dlib HOG Detector": {
+      "status": "SKIP",
+      "error": "No module named 'dlib'"
+    },
+    "Dlib 68-Landmark": {
+      "status": "SKIP",
+      "error": "No module named 'dlib'"
+    },
+    "Haar Cascade": {
+      "inference": {
+        "mean_ms": 19.2673,
+        "median_ms": 19.1521,
+        "min_ms": 15.7851,
+        "max_ms": 22.4642,
+        "p95_ms": 21.7329,
+        "p99_ms": 22.4642,
+        "fps_equivalent": 51.9
+      },
+      "model_size_mb": 0.89,
+      "status": "OK"
+    },
+    "CLAHE Enhancement": {
+      "inference": {
+        "mean_ms": 4.8074,
+        "median_ms": 4.793,
+        "min_ms": 4.555,
+        "max_ms": 5.1378,
+        "p95_ms": 5.0587,
+        "p99_ms": 5.1311,
+        "fps_equivalent": 208.01
+      },
+      "model_size_mb": 0.0,
+      "status": "OK"
+    }
+  },
+  "log": [
+    "============================================================",
+    "BlinkLink-IoT Model Benchmark v2",
+    "============================================================",
+    "\n[1] Benchmarking MediaPipe Face Mesh...",
+    "   Mean: 6.03ms (165.96 FPS), Model: 27.84MB",
+    "\n[2] Benchmarking FaceNet (keras-facenet)...",
+    "   Mean: 183.82ms (5.44 FPS), Model: 90.55MB",
+    "\n[3] Benchmarking EAR Blink Detection...",
+    "   Mean: 0.0266ms (37543.33 FPS)",
+    "\n[4] Benchmarking Dlib 68-Landmark...",
+    "   SKIP (dlib not installed): No module named 'dlib'",
+    "\n[5] Benchmarking Haar Cascade...",
+    "   Mean: 19.27ms (51.9 FPS), Model: 0.89MB",
+    "\n[6] Benchmarking CLAHE Enhancement...",
+    "   Mean: 4.81ms (208.01 FPS)",
+    "\n[7] Measuring Memory Usage...",
+    "   psutil not available, skipping memory measurement"
+  ],
+  "timestamp": "2026-10-03 11:00:32",
+  "frame_size": "800x600"
+}
