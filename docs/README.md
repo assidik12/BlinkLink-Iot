@@ -43,11 +43,12 @@ Millions of people worldwide live with conditions like ALS, cerebral palsy, or s
 </td>
 <td width="50%">
 
-### 👁️ Real-Time Blink Detection
+### 👁️ Real-Time Gesture & Blink Detection
 
-- Ultra-responsive detection using **Dlib's 68-point facial landmarks**
-- **Eye Aspect Ratio (EAR) algorithm** for accurate blink recognition
-- Configurable sensitivity and thresholds
+- High-FPS facial landmark detection using **MediaPipe Face Mesh (478 landmarks)** with fallback support for **Dlib 68-landmarks**
+- **Eye Aspect Ratio (EAR) algorithm** with hysteresis filtering (anti-flicker)
+- Intentional gesture recognition: distinguishes voluntary long blinks (Action trigger: ~2s, Mode switch: ~5s) from natural involuntary blinks
+- Head pose estimation (Yaw/Pitch/Roll) for multi-device navigation
 
 </td>
 </tr>
@@ -109,21 +110,19 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 ```
 
 1. **Vision Controller (Python/PC)** 🖥️
-   - Captures video feed from webcam
-   - Performs facial recognition for authentication
-   - Detects eye blinks using computer vision
-   - Publishes commands via MQTT protocol
+   - Menangkap stream kamera real-time.
+   - Melakukan autentikasi pengguna lokal via FaceNet embeddings.
+   - Mengekstraksi landmark mata dengan **MediaPipe Face Mesh** dan menghitung metrik EAR dengan hysteresis filter.
+   - Mengirim perintah kontrol ke topik MQTT spesifik (iot/commands/lampu, iot/commands/tv, dll.).
 
 2. **MQTT Broker (Cloud/Local)** ☁️
-   - Acts as central message hub (e.g., HiveMQ, Mosquitto)
-   - Receives commands from Vision Controller
-   - Routes messages to appropriate IoT devices
+   - Menjadi jembatan komunikasi antara PC controller dan ESP32.
 
-3. **IoT Device (ESP32)** 🔌
-   - Subscribes to MQTT topics
-   - Receives wireless commands
-   - Controls physical relay to switch devices
-   - Provides feedback via serial monitor
+3. **IoT Device (ESP32 Hardware / Virtual Simulator)** 🔌
+   - Menerima instruksi via MQTT.
+   - **Kontrol Relay (GPIO 2)**: Menghidupkan/mematikan saklar listrik lampu.
+   - **Kontrol IR Sender (GPIO 4)**: Memancarkan sinyal infra-merah NEC untuk mengontrol TV / STB (Volume Up/Down, Channel Up/Down).
+   - Mode simulasi tersedia tanpa hardware fisik (python src/iot_devices/iot_device_virtual.py).
 
 ---
 
@@ -222,8 +221,8 @@ Video uji tidak disertakan di repo. Untuk menjalankan benchmark:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/assidik12/BlinkLink.git
-cd BlinkLink
+git clone https://github.com/assidik12/BlinkLink-Iot.git
+cd BlinkLink-Iot
 ```
 
 ### Step 2: Set Up Vision Controller (Python)
