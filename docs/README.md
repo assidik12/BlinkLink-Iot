@@ -129,29 +129,52 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 
 ## 📊 Benchmark Results
 
-The following benchmark was run on **October 2, 2026 at 20:06:36**, using a
-frame size of **800×600**. Inference times are reported in milliseconds per
-operation; the FPS equivalent is calculated from the mean inference time.
+Hasil pengujian komparasi head-to-head (*interleaved*) performa ekstraksi **Eye Aspect Ratio (EAR)** antara **MediaPipe Face Mesh** dan **Dlib 68-Landmarks** dievaluasi menggunakan rekaman video input 1080p (`video.mp4`, 644 frames). File video **tidak disertakan di repository** (di-ignore via `.gitignore`); lihat langkah di bawah untuk menguji dengan video Anda sendiri.
 
-| Component | Mean | Median | P95 | Max | FPS equivalent | Model size | Status |
-| :-- | --: | --: | --: | --: | --: | --: | :-- |
-| MediaPipe Face Mesh | 5.4825 ms | 5.4590 ms | 5.9318 ms | 6.1071 ms | 182.40 | 27.84 MB | ✅ OK |
-| FaceNet (`keras-facenet`) | 141.9671 ms | 142.1137 ms | 147.4230 ms | 148.6545 ms | 7.04 | 90.55 MB | ✅ OK |
-| EAR Blink Detection | 0.0213 ms | 0.0212 ms | 0.0220 ms | 0.0230 ms | 47,021.21 | — | ✅ OK |
-| Haar Cascade | 16.0029 ms | 16.2449 ms | 16.3743 ms | 16.4599 ms | 62.49 | 0.89 MB | ✅ OK |
-| CLAHE Enhancement | 4.1988 ms | 4.1881 ms | 4.3440 ms | 4.4153 ms | 238.16 | — | ✅ OK |
+### 🧪 Cara Menjalankan Benchmark (dengan Video Sendiri)
 
-### Benchmark Notes
+Video uji tidak disertakan di repo. Untuk menjalankan benchmark:
 
-- **Dlib HOG Detector** and **Dlib 68-Landmark** were not benchmarked because
-  the `dlib` module was not installed in the test environment.
-- Memory usage was not measured because `psutil` was unavailable.
-- FaceNet produced a **512-dimensional embedding** from a **160×160** input.
-- The complete raw result is available in
-  [`benchmark_results.json`](benchmark_results.json).
-- For project structure details, see [`PROJECT_STRUCTURE.md`](../PROJECT_STRUCTURE.md).
+1. **Siapkan video Anda sendiri** (wajah terlihat jelas, format `.mp4`/`.avi`/`.mov`; disarankan 1080p agar sebanding dengan hasil di bawah).
+2. **Letakkan file di root direktori proyek**, mis. `BlinkLink-Iot/video.mp4` (sejajar dengan `benchmark_ear.py`). File video otomatis di-ignore Git sehingga tidak ikut ter-push.
+3. **Install dependensi** (jika belum):
 
----
+   ```bash
+   pip install -r requirements.txt
+   pip install psutil pandas matplotlib
+   ```
+
+4. **Jalankan benchmark** dari root proyek (ganti `video.mp4` dengan nama file Anda, dan `--frames` sesuai jumlah frame video):
+
+   ```bash
+   # Head-to-head (interleaved) menggunakan video sendiri
+   python benchmark_ear.py --source video.mp4 --frames 644 --mode interleaved
+
+   # Tanpa grafik (hanya ekspor CSV)
+   python benchmark_ear.py --source video.mp4 --frames 644 --no-plot
+
+   # Live webcam
+   python benchmark_ear.py --source 0 --frames 300 --mode interleaved
+   ```
+
+5. **Lihat hasil**: tabel ringkasan tampil di terminal, log per-frame disimpan ke `benchmark_results.csv` dan grafik ke `benchmark_comparison.png` (keduanya juga di-ignore Git).
+
+> [!TIP]
+> Hasil bergantung pada perangkat keras dan video yang digunakan, sehingga angka Anda bisa berbeda dari tabel di bawah. Gunakan `--help` untuk melihat seluruh opsi (`--warmup`, `--dlib-model`, `--csv-output`, `--plot-output`).
+
+### 📈 Hasil Komparasi Performa Komputasi (Full HD 1920×1080, video referensi penulis)
+
+| Framework / Pipeline | Total Frames | Face Det (%) | Avg Latency | Min Latency | P95 Latency | Max Latency | Throughput (FPS) | Peak RAM | Avg CPU | Avg EAR |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **MediaPipe Face Mesh** | 644 | **99.8%** | **11.62 ms** | **10.68 ms** | **12.32 ms** | **16.98 ms** | **86.1 FPS** | 625.1 MB | 172.4% | 0.1698 |
+| **Dlib 68 (HOG + Predictor)** | 644 | **100.0%** | 283.69 ms | 276.91 ms | 295.74 ms | 366.02 ms | 3.5 FPS | 625.1 MB | 112.5% | 0.2484 |
+
+> [!NOTE]
+> - **Efisiensi & Kecepatan**: MediaPipe Face Mesh mencatat latensi rata-rata **~11.62 ms (86.1 FPS)**, yaitu **~24.4x lebih cepat** dibandingkan Dlib 68 (283.69 ms / 3.5 FPS) pada resolusi 1080p, menjadikannya pilihan ideal untuk kontrol IoT real-time.
+> - **Visualisasi Grafik**: Grafik komparasi latensi per-frame, fluktuasi FPS, distribusi EAR, dan resource usage dihasilkan sebagai `benchmark_comparison.png`.
+> - **Log Data Mentah**: Log metrik per frame dihasilkan sebagai `benchmark_results.csv`.
+> - Data benchmark historis komponen lainnya dapat dilihat pada [`benchmark_results.json`](benchmark_results.json).
+
 
 ## 🛠️ Technology Stack
 
@@ -219,7 +242,8 @@ cd BlinkLink
    - Run the following command and follow the on-screen instructions to capture and encode your face data:
 
    ```bash
-   python vision_controller/collect_and_encode.py
+   python src/vision_controller/collect_face.py
+   python src/vision_controller/encoded_face.py
    ```
 
 ### Step 3: Set Up IoT Device (ESP32)

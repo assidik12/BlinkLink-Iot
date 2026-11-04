@@ -74,6 +74,46 @@
       },
       "model_size_mb": 0.0,
       "status": "OK"
+    },
+    "MediaPipe Face Mesh (1080p video)": {
+      "source": "video.mp4",
+      "resolution": "1920x1080",
+      "total_frames": 644,
+      "face_detection_rate_pct": 99.84,
+      "inference": {
+        "mean_ms": 11.62,
+        "median_ms": 11.58,
+        "min_ms": 10.68,
+        "max_ms": 16.98,
+        "p95_ms": 12.32,
+        "fps_equivalent": 86.06
+      },
+      "resource": {
+        "peak_ram_mb": 625.15,
+        "avg_cpu_percent": 172.43
+      },
+      "mean_ear": 0.1698,
+      "status": "OK"
+    },
+    "Dlib 68-Landmark (1080p video)": {
+      "source": "video.mp4",
+      "resolution": "1920x1080",
+      "total_frames": 644,
+      "face_detection_rate_pct": 100.0,
+      "inference": {
+        "mean_ms": 283.69,
+        "median_ms": 281.71,
+        "min_ms": 276.91,
+        "max_ms": 366.02,
+        "p95_ms": 295.74,
+        "fps_equivalent": 3.52
+      },
+      "resource": {
+        "peak_ram_mb": 625.15,
+        "avg_cpu_percent": 112.54
+      },
+      "mean_ear": 0.2484,
+      "status": "OK"
     }
   },
   "log": [
