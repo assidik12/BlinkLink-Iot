@@ -99,7 +99,7 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 
 <div align="center">
 
-![System Architecture](architecture.png)
+![System Architecture](docs/architecture.png)
 
 </div>
 
