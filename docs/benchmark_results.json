@@ -136,5 +136,172 @@
     "   psutil not available, skipping memory measurement"
   ],
   "timestamp": "2026-10-03 11:00:32",
-  "frame_size": "800x600"
+  "frame_size": "800x600",
+  "benchmark_date": "2026-11-09",
+  "multiscenario_matrix_evaluation": {
+    "description": "Matriks evaluasi 2x2: Pencahayaan (Normal vs Low Light) dan Kacamata (Tanpa vs Dengan Kacamata)",
+    "summary_csv": "docs/benchmarks/summary_comparison.csv",
+    "scenarios": [
+      {
+        "source_video": "normal.mp4",
+        "lighting": "normal",
+        "glasses": "tanpa_kacamata",
+        "framework": "Dlib 68",
+        "total_frames": 644,
+        "face_detection_rate_pct": 100.0,
+        "inference": {
+          "avg_latency_ms": 287.51,
+          "p95_latency_ms": 301.25,
+          "throughput_fps": 3.48
+        },
+        "resources": {
+          "peak_ram_mb": 624.82,
+          "avg_cpu_percent": 111.62
+        },
+        "mean_ear": 0.2484,
+        "ear_threshold": 0.21,
+        "pred_blinks": 7
+      },
+      {
+        "source_video": "normal.mp4",
+        "lighting": "normal",
+        "glasses": "tanpa_kacamata",
+        "framework": "MediaPipe FaceMesh",
+        "total_frames": 644,
+        "face_detection_rate_pct": 99.84,
+        "inference": {
+          "avg_latency_ms": 11.72,
+          "p95_latency_ms": 12.77,
+          "throughput_fps": 85.35
+        },
+        "resources": {
+          "peak_ram_mb": 624.82,
+          "avg_cpu_percent": 194.7
+        },
+        "mean_ear": 0.1698,
+        "ear_threshold": 0.21,
+        "pred_blinks": 6
+      },
+      {
+        "source_video": "normal-low-light.mp4",
+        "lighting": "low_light",
+        "glasses": "tanpa_kacamata",
+        "framework": "Dlib 68",
+        "total_frames": 974,
+        "face_detection_rate_pct": 100.0,
+        "inference": {
+          "avg_latency_ms": 285.84,
+          "p95_latency_ms": 297.8,
+          "throughput_fps": 3.5
+        },
+        "resources": {
+          "peak_ram_mb": 628.94,
+          "avg_cpu_percent": 110.19
+        },
+        "mean_ear": 0.2437,
+        "ear_threshold": 0.21,
+        "pred_blinks": 21
+      },
+      {
+        "source_video": "normal-low-light.mp4",
+        "lighting": "low_light",
+        "glasses": "tanpa_kacamata",
+        "framework": "MediaPipe FaceMesh",
+        "total_frames": 974,
+        "face_detection_rate_pct": 99.9,
+        "inference": {
+          "avg_latency_ms": 11.77,
+          "p95_latency_ms": 12.74,
+          "throughput_fps": 84.99
+        },
+        "resources": {
+          "peak_ram_mb": 628.94,
+          "avg_cpu_percent": 203.44
+        },
+        "mean_ear": 0.1804,
+        "ear_threshold": 0.21,
+        "pred_blinks": 6
+      },
+      {
+        "source_video": "kacamata.mp4",
+        "lighting": "normal",
+        "glasses": "dengan_kacamata",
+        "framework": "Dlib 68",
+        "total_frames": 328,
+        "face_detection_rate_pct": 100.0,
+        "inference": {
+          "avg_latency_ms": 288.06,
+          "p95_latency_ms": 304.98,
+          "throughput_fps": 3.47
+        },
+        "resources": {
+          "peak_ram_mb": 622.89,
+          "avg_cpu_percent": 112.32
+        },
+        "mean_ear": 0.2692,
+        "ear_threshold": 0.21,
+        "pred_blinks": 13
+      },
+      {
+        "source_video": "kacamata.mp4",
+        "lighting": "normal",
+        "glasses": "dengan_kacamata",
+        "framework": "MediaPipe FaceMesh",
+        "total_frames": 328,
+        "face_detection_rate_pct": 99.7,
+        "inference": {
+          "avg_latency_ms": 11.95,
+          "p95_latency_ms": 13.05,
+          "throughput_fps": 83.7
+        },
+        "resources": {
+          "peak_ram_mb": 622.89,
+          "avg_cpu_percent": 187.74
+        },
+        "mean_ear": 0.1936,
+        "ear_threshold": 0.21,
+        "pred_blinks": 5
+      },
+      {
+        "source_video": "kacamata-low-light.mp4",
+        "lighting": "low_light",
+        "glasses": "dengan_kacamata",
+        "framework": "Dlib 68",
+        "total_frames": 986,
+        "face_detection_rate_pct": 90.47,
+        "inference": {
+          "avg_latency_ms": 288.93,
+          "p95_latency_ms": 311.08,
+          "throughput_fps": 3.46
+        },
+        "resources": {
+          "peak_ram_mb": 622.58,
+          "avg_cpu_percent": 108.68
+        },
+        "mean_ear": 0.2674,
+        "ear_threshold": 0.21,
+        "pred_blinks": 0
+      },
+      {
+        "source_video": "kacamata-low-light.mp4",
+        "lighting": "low_light",
+        "glasses": "dengan_kacamata",
+        "framework": "MediaPipe FaceMesh",
+        "total_frames": 986,
+        "face_detection_rate_pct": 99.9,
+        "inference": {
+          "avg_latency_ms": 11.91,
+          "p95_latency_ms": 13.27,
+          "throughput_fps": 83.97
+        },
+        "resources": {
+          "peak_ram_mb": 622.58,
+          "avg_cpu_percent": 195.51
+        },
+        "mean_ear": 0.2084,
+        "ear_threshold": 0.21,
+        "pred_blinks": 6
+      }
+    ]
+  }
 }

@@ -126,54 +126,70 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 
 ---
 
-## 📊 Benchmark Results
+## 📊 Benchmark Results: Evaluasi Matriks Multi-Skenario
 
-Hasil pengujian komparasi head-to-head (*interleaved*) performa ekstraksi **Eye Aspect Ratio (EAR)** antara **MediaPipe Face Mesh** dan **Dlib 68-Landmarks** dievaluasi menggunakan rekaman video input 1080p (`video.mp4`, 644 frames). File video **tidak disertakan di repository** (di-ignore via `.gitignore`); lihat langkah di bawah untuk menguji dengan video Anda sendiri.
+Evaluasi performa komputasi dan ketahanan ekstraksi **Eye Aspect Ratio (EAR)** antara **MediaPipe Face Mesh (478 titik)** dan **Dlib 68-Landmarks (HOG + Shape Predictor)** diuji menggunakan matriks 2x2 kondisi nyata (Pencahayaan Normal vs Low-Light, serta Tanpa Kacamata vs Dengan Kacamata) pada resolusi 1080p (total **2.932 frames**).
 
-### 🧪 Cara Menjalankan Benchmark (dengan Video Sendiri)
+### 📈 Ringkasan Hasil Matriks 2x2 (Cahaya & Kacamata)
 
-Video uji tidak disertakan di repo. Untuk menjalankan benchmark:
+File rekapitulasi data lengkap tersimpan di [`docs/benchmarks/summary_comparison.csv`](docs/benchmarks/summary_comparison.csv).
 
-1. **Siapkan video Anda sendiri** (wajah terlihat jelas, format `.mp4`/`.avi`/`.mov`; disarankan 1080p agar sebanding dengan hasil di bawah).
-2. **Letakkan file di root direktori proyek**, mis. `BlinkLink-Iot/video.mp4` (sejajar dengan `benchmark_ear.py`). File video otomatis di-ignore Git sehingga tidak ikut ter-push.
-3. **Install dependensi** (jika belum):
+| Skenario Pengujian | Video Input (Frames) | Pipeline / Model | Deteksi Wajah (%) | Rata-rata Latensi | Throughput (FPS) | Rata-rata EAR | Prediksi Kedip (Thresh 0.21) |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **1. Normal**<br>*(Terang, Tanpa Kacamata)* | `normal.mp4`<br>(644 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.8%**<br>100.0% | **11.72 ms**<br>287.51 ms | **85.4 FPS**<br>3.5 FPS | **0.1698**<br>0.2484 | **6 kedipan**<br>7 kedipan |
+| **2. Low-Light**<br>*(Redup, Tanpa Kacamata)* | `normal-low-light.mp4`<br>(974 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>100.0% | **11.77 ms**<br>285.84 ms | **85.0 FPS**<br>3.5 FPS | **0.1804**<br>0.2437 | **6 kedipan** *(Stabil)*<br>21 kedipan *(Flicker)* |
+| **3. Kacamata**<br>*(Terang, Pakai Kacamata)* | `kacamata.mp4`<br>(328 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.7%**<br>100.0% | **11.95 ms**<br>288.06 ms | **83.7 FPS**<br>3.5 FPS | **0.1936**<br>0.2692 | **5 kedipan**<br>13 kedipan *(False+)* |
+| **4. Kacamata + Low-Light**<br>*(Paling Ekstrem)* | `kacamata-low-light.mp4`<br>(986 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>90.5% *(Anjlok)* | **11.91 ms**<br>288.93 ms | **84.0 FPS**<br>3.5 FPS | **0.2084**<br>0.2674 | **6 kedipan** *(Sangat stabil)*<br>0 kedipan *(Gagal)* |
 
-   ```bash
-   pip install -r requirements.txt
-   pip install psutil pandas matplotlib
-   ```
+### 🔍 Temuan & Analisis Utama
 
-4. **Jalankan benchmark** dari root proyek (ganti `video.mp4` dengan nama file Anda, dan `--frames` sesuai jumlah frame video):
-
-   ```bash
-   # Head-to-head (interleaved) menggunakan video sendiri
-   python benchmark_ear.py --source video.mp4 --frames 644 --mode interleaved
-
-   # Tanpa grafik (hanya ekspor CSV)
-   python benchmark_ear.py --source video.mp4 --frames 644 --no-plot
-
-   # Live webcam
-   python benchmark_ear.py --source 0 --frames 300 --mode interleaved
-   ```
-
-5. **Lihat hasil**: tabel ringkasan tampil di terminal, log per-frame disimpan ke `benchmark_results.csv` dan grafik ke `benchmark_comparison.png` (keduanya juga di-ignore Git).
-
-> [!TIP]
-> Hasil bergantung pada perangkat keras dan video yang digunakan, sehingga angka Anda bisa berbeda dari tabel di bawah. Gunakan `--help` untuk melihat seluruh opsi (`--warmup`, `--dlib-model`, `--csv-output`, `--plot-output`).
-
-### 📈 Hasil Komparasi Performa Komputasi (Full HD 1920×1080, video referensi penulis)
-
-| Framework / Pipeline | Total Frames | Face Det (%) | Avg Latency | Min Latency | P95 Latency | Max Latency | Throughput (FPS) | Peak RAM | Avg CPU | Avg EAR |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **MediaPipe Face Mesh** | 644 | **99.8%** | **11.62 ms** | **10.68 ms** | **12.32 ms** | **16.98 ms** | **86.1 FPS** | 625.1 MB | 172.4% | 0.1698 |
-| **Dlib 68 (HOG + Predictor)** | 644 | **100.0%** | 283.69 ms | 276.91 ms | 295.74 ms | 366.02 ms | 3.5 FPS | 625.1 MB | 112.5% | 0.2484 |
+1. **Kecepatan & Kelayakan Real-Time**: MediaPipe Face Mesh konsisten di **~84-85 FPS (latensi ~11.8 ms)** di semua kondisi, yaitu **~24.4x lebih cepat** daripada Dlib 68 (~3.5 FPS). MediaPipe memberikan ruang komputasi yang sangat lega bagi controller IoT, pygame UI, dan Flask video feed.
+2. **Ketahanan Kondisi Ekstrem (Low-Light + Kacamata)**: MediaPipe mempertahankan deteksi wajah **99.9%**. Sebaliknya, Dlib 68 HOG mengalami penurunan ke **90.5%** (kehilangan wajah pada ~95 frame) akibat kombinasi bayangan gelap dan oklusi bingkai kacamata.
+3. **Stabilitas Deteksi Kedip**: MediaPipe mendeteksi jumlah kedipan mata yang **sangat konsisten (~5-6 kedipan)** di seluruh skenario. Dlib rentan terhadap kedipan semu (*false positive*) saat redup/kacamata, dan gagal mendeteksi kedip sama sekali saat gelap berkacamata.
+4. **Pergeseran Geometri EAR**: Keberadaan bingkai kacamata menggeser nilai rata-rata EAR sebesar +0.024 ke atas karena distorsi optik dan penarikan landmark kelopak mata. Oleh karena itu, ambang batas kedip adaptif/kalibrasi sangat direkomendasikan.
 
 > [!NOTE]
-> - **Efisiensi & Kecepatan**: MediaPipe Face Mesh mencatat latensi rata-rata **~11.62 ms (86.1 FPS)**, yaitu **~24.4x lebih cepat** dibandingkan Dlib 68 (283.69 ms / 3.5 FPS) pada resolusi 1080p, menjadikannya pilihan ideal untuk kontrol IoT real-time.
-> - **Visualisasi Grafik**: Grafik komparasi latensi per-frame, fluktuasi FPS, distribusi EAR, dan resource usage dihasilkan sebagai `benchmark_comparison.png`.
-> - **Log Data Mentah**: Log metrik per frame dihasilkan sebagai `benchmark_results.csv`.
-> - Data benchmark historis komponen lainnya dapat dilihat pada [`benchmark_results.json`](benchmark_results.json).
+> - **Visualisasi Grafik**: Grafik komparasi per skenario tersedia di [`docs/benchmarks/plots/`](docs/benchmarks/plots/) (`plot_normal.png`, `plot_normal_low_light.png`, `plot_kacamata.png`, `plot_kacamata_low_light.png`).
+> - **Data Mentah Per-Frame**: File CSV per frame tersimpan terorganisir di [`docs/benchmarks/data/`](docs/benchmarks/data/).
+> - **Hasil JSON Terstruktur**: Terdaftar lengkap pada [`docs/benchmark_results.json`](docs/benchmark_results.json).
 
+---
+
+### 🧪 Panduan Cara Menjalankan Benchmark Mandiri
+
+File video pengujian tidak disertakan di repository Git (di-ignore otomatis via `.gitignore`). Anda dapat menjalankan benchmark menggunakan kamera langsung atau rekaman video Anda sendiri:
+
+#### 1. Persiapan Dependensi
+```bash
+pip install -r requirements.txt
+pip install psutil pandas matplotlib
+```
+
+#### 2. Menjalankan Uji Skenario Mandiri
+
+Letakkan video Anda di root folder proyek (misal `video.mp4`), lalu jalankan:
+
+```bash
+# Skenario 1: Video Normal (Terang, Tanpa Kacamata)
+python benchmark_ear.py --source normal.mp4 --frames 644   --scenario-lighting "normal" --scenario-glasses "tanpa_kacamata"   --csv-output results_normal.csv --plot-output plot_normal.png --summary-csv summary_comparison.csv
+
+# Skenario 2: Video Low-Light (Redup)
+python benchmark_ear.py --source normal-low-light.mp4 --frames 974   --scenario-lighting "low_light" --scenario-glasses "tanpa_kacamata"   --csv-output results_normal_low_light.csv --plot-output plot_normal_low_light.png --summary-csv summary_comparison.csv
+
+# Skenario 3: Video dengan Kacamata
+python benchmark_ear.py --source kacamata.mp4 --frames 328   --scenario-lighting "normal" --scenario-glasses "dengan_kacamata"   --csv-output results_kacamata.csv --plot-output plot_kacamata.png --summary-csv summary_comparison.csv
+
+# Skenario 4: Video Kacamata + Low-Light
+python benchmark_ear.py --source kacamata-low-light.mp4 --frames 986   --scenario-lighting "low_light" --scenario-glasses "dengan_kacamata"   --csv-output results_kacamata_low_light.csv --plot-output plot_kacamata_low_light.png --summary-csv summary_comparison.csv
+
+# Menggunakan Live Webcam (Real-time kamera perangkat)
+python benchmark_ear.py --source 0 --frames 300 --mode interleaved
+```
+
+> [!TIP]
+> Parameter `--summary-csv summary_comparison.csv` akan secara otomatis menggabungkan ringkasan tiap skenario ke dalam satu file tabel CSV terpadu tanpa menimpa data sebelumnya.
+
+---
 
 ## 🛠️ Technology Stack
 

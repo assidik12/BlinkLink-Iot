@@ -30,5 +30,9 @@ venv/
 *.mkv
 
 # Ignore benchmark outputs
-benchmark_results.csv
-benchmark_comparison.png
+# Ignore benchmark root outputs
+/benchmark_results.csv
+/benchmark_comparison.png
+/results_*.csv
+/plot_*.png
+/summary_comparison.csv

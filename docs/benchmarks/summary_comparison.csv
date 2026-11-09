@@ -1,0 +1,9 @@
+timestamp,source_video,scenario_lighting,scenario_glasses,framework,total_frames,face_det_pct,avg_latency_ms,p95_latency_ms,throughput_fps,peak_ram_mb,avg_cpu_pct,avg_ear,ear_threshold,tp,tn,fp,fn,accuracy_pct,precision_pct,recall_pct,f1_score_pct,gt_blinks,pred_blinks
+2026-11-09 11:15:50,normal.mp4,normal,tanpa_kacamata,Dlib 68,644,100.0,287.51,301.25,3.48,624.82,111.62,0.2484,0.21,,,,,,,,,0,7
+2026-11-09 11:15:50,normal.mp4,normal,tanpa_kacamata,MediaPipe FaceMesh,644,99.84,11.72,12.77,85.35,624.82,194.7,0.1698,0.21,,,,,,,,,0,6
+2026-11-09 11:21:09,normal-low-light.mp4,low_light,tanpa_kacamata,Dlib 68,974,100.0,285.84,297.8,3.5,628.94,110.19,0.2437,0.21,,,,,,,,,0,21
+2026-11-09 11:21:09,normal-low-light.mp4,low_light,tanpa_kacamata,MediaPipe FaceMesh,974,99.9,11.77,12.74,84.99,628.94,203.44,0.1804,0.21,,,,,,,,,0,6
+2026-11-09 11:23:09,kacamata.mp4,normal,dengan_kacamata,Dlib 68,328,100.0,288.06,304.98,3.47,622.89,112.32,0.2692,0.21,,,,,,,,,0,13
+2026-11-09 11:23:09,kacamata.mp4,normal,dengan_kacamata,MediaPipe FaceMesh,328,99.7,11.95,13.05,83.7,622.89,187.74,0.1936,0.21,,,,,,,,,0,5
+2026-11-09 11:28:34,kacamata-low-light.mp4,low_light,dengan_kacamata,Dlib 68,986,90.47,288.93,311.08,3.46,622.58,108.68,0.2674,0.21,,,,,,,,,0,0
+2026-11-09 11:28:34,kacamata-low-light.mp4,low_light,dengan_kacamata,MediaPipe FaceMesh,986,99.9,11.91,13.27,83.97,622.58,195.51,0.2084,0.21,,,,,,,,,0,6
