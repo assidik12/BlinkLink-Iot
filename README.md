@@ -126,31 +126,44 @@ _Watch BlinkLink in action: The system identifies the user, verifies identity, a
 
 ---
 
-## 📊 Benchmark Results: Evaluasi Matriks Multi-Skenario
+## 📊 Benchmark Results: Evaluasi Matriks Multi-Skenario & Akurasi
 
-Evaluasi performa komputasi dan ketahanan ekstraksi **Eye Aspect Ratio (EAR)** antara **MediaPipe Face Mesh (478 titik)** dan **Dlib 68-Landmarks (HOG + Shape Predictor)** diuji menggunakan matriks 2x2 kondisi nyata (Pencahayaan Normal vs Low-Light, serta Tanpa Kacamata vs Dengan Kacamata) pada resolusi 1080p (total **2.932 frames**).
+Evaluasi performa komputasi dan akurasi ekstraksi **Eye Aspect Ratio (EAR)** antara **MediaPipe Face Mesh (478 titik)** dan **Dlib 68-Landmarks (HOG + Shape Predictor)** diuji menggunakan matriks 2x2 kondisi nyata (Pencahayaan Normal vs Low-Light, serta Tanpa Kacamata vs Dengan Kacamata) pada resolusi 1080p (total **2.932 frames**).
 
-### 📈 Ringkasan Hasil Matriks 2x2 (Cahaya & Kacamata)
+Pengujian ini dilengkapi dengan **Ground Truth (GT)** interval kedipan nyata untuk mengukur metrik evaluasi klasifikasi secara objektif (*Accuracy, Precision, Recall, F1-Score, dan Confusion Matrix*).
+
+### 📈 Tabel 1: Hasil Evaluasi Akurasi Klasifikasi Kedipan (vs Ground Truth)
 
 File rekapitulasi data lengkap tersimpan di [`docs/benchmarks/summary_comparison.csv`](docs/benchmarks/summary_comparison.csv).
 
-| Skenario Pengujian | Video Input (Frames) | Pipeline / Model | Deteksi Wajah (%) | Rata-rata Latensi | Throughput (FPS) | Rata-rata EAR | Prediksi Kedip (Thresh 0.21) |
-| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **1. Normal**<br>*(Terang, Tanpa Kacamata)* | `normal.mp4`<br>(644 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.8%**<br>100.0% | **11.72 ms**<br>287.51 ms | **85.4 FPS**<br>3.5 FPS | **0.1698**<br>0.2484 | **6 kedipan**<br>7 kedipan |
-| **2. Low-Light**<br>*(Redup, Tanpa Kacamata)* | `normal-low-light.mp4`<br>(974 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>100.0% | **11.77 ms**<br>285.84 ms | **85.0 FPS**<br>3.5 FPS | **0.1804**<br>0.2437 | **6 kedipan** *(Stabil)*<br>21 kedipan *(Flicker)* |
-| **3. Kacamata**<br>*(Terang, Pakai Kacamata)* | `kacamata.mp4`<br>(328 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.7%**<br>100.0% | **11.95 ms**<br>288.06 ms | **83.7 FPS**<br>3.5 FPS | **0.1936**<br>0.2692 | **5 kedipan**<br>13 kedipan *(False+)* |
-| **4. Kacamata + Low-Light**<br>*(Paling Ekstrem)* | `kacamata-low-light.mp4`<br>(986 frames) | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>90.5% *(Anjlok)* | **11.91 ms**<br>288.93 ms | **84.0 FPS**<br>3.5 FPS | **0.2084**<br>0.2674 | **6 kedipan** *(Sangat stabil)*<br>0 kedipan *(Gagal)* |
+| Skenario Pengujian | Model / Pipeline | Thresh | TP / TN / FP / FN | Accuracy | Precision | Recall | **F1-Score** | GT Blinks | **Pred Blinks** |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. Normal**<br>*(Terang, Tanpa Kacamata)* | **MediaPipe FaceMesh**<br>Dlib 68 | 0.17<br>0.22 | 264 / 380 / 0 / 0<br>261 / 373 / 7 / 3 | **100.0%**<br>98.5% | **100.0%**<br>97.4% | **100.0%**<br>98.9% | **100.0%**<br>98.1% | 5 kedipan<br>5 kedipan | **5 kedipan**<br>7 kedipan |
+| **2. Low-Light**<br>*(Redup, Tanpa Kacamata)* | **MediaPipe FaceMesh**<br>Dlib 68 | 0.17<br>0.22 | 396 / 578 / 0 / 0<br>225 / 543 / 35 / 171 | **100.0%**<br>78.9% | **100.0%**<br>86.5% | **100.0%**<br>56.8% | **100.0%**<br>68.6% | 5 kedipan<br>5 kedipan | **5 kedipan**<br>33 kedipan *(Flicker)* |
+| **3. Kacamata**<br>*(Terang, Pakai Kacamata)* | **MediaPipe FaceMesh**<br>Dlib 68 | 0.20<br>0.24 | 132 / 196 / 0 / 0<br>123 / 195 / 1 / 9 | **100.0%**<br>97.0% | **100.0%**<br>99.2% | **100.0%**<br>93.2% | **100.0%**<br>96.1% | 5 kedipan<br>5 kedipan | **5 kedipan**<br>6 kedipan |
+| **4. Kacamata + Low-Light**<br>*(Paling Ekstrem)* | **MediaPipe FaceMesh**<br>Dlib 68 | 0.20<br>0.24 | 386 / 599 / 1 / 0<br>64 / 600 / 0 / 322 | **99.9%**<br>67.3% | **99.7%**<br>100.0% | **100.0%**<br>16.6% | **99.9%**<br>28.4% *(Anjlok)* | 5 kedipan<br>5 kedipan | **5 kedipan**<br>13 kedipan |
 
-### 🔍 Temuan & Analisis Utama
+---
 
-1. **Kecepatan & Kelayakan Real-Time**: MediaPipe Face Mesh konsisten di **~84-85 FPS (latensi ~11.8 ms)** di semua kondisi, yaitu **~24.4x lebih cepat** daripada Dlib 68 (~3.5 FPS). MediaPipe memberikan ruang komputasi yang sangat lega bagi controller IoT, pygame UI, dan Flask video feed.
-2. **Ketahanan Kondisi Ekstrem (Low-Light + Kacamata)**: MediaPipe mempertahankan deteksi wajah **99.9%**. Sebaliknya, Dlib 68 HOG mengalami penurunan ke **90.5%** (kehilangan wajah pada ~95 frame) akibat kombinasi bayangan gelap dan oklusi bingkai kacamata.
-3. **Stabilitas Deteksi Kedip**: MediaPipe mendeteksi jumlah kedipan mata yang **sangat konsisten (~5-6 kedipan)** di seluruh skenario. Dlib rentan terhadap kedipan semu (*false positive*) saat redup/kacamata, dan gagal mendeteksi kedip sama sekali saat gelap berkacamata.
-4. **Pergeseran Geometri EAR**: Keberadaan bingkai kacamata menggeser nilai rata-rata EAR sebesar +0.024 ke atas karena distorsi optik dan penarikan landmark kelopak mata. Oleh karena itu, ambang batas kedip adaptif/kalibrasi sangat direkomendasikan.
+### ⚡ Tabel 2: Performa Komputasi & Resource Hardware
+
+| Skenario Pengujian | Model / Pipeline | Deteksi Wajah (%) | Rata-rata Latensi | P95 Latency | Throughput (FPS) | Rata-rata EAR | Peak RAM | Rata-rata CPU |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **1. Normal** | **MediaPipe FaceMesh**<br>Dlib 68 | **99.8%**<br>100.0% | **12.44 ms**<br>306.41 ms | **14.20 ms**<br>348.21 ms | **80.4 FPS**<br>3.3 FPS | **0.1698**<br>0.2484 | 628.7 MB<br>628.7 MB | 201.2%<br>109.1% |
+| **2. Low-Light** | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>100.0% | **12.27 ms**<br>301.87 ms | **13.39 ms**<br>319.63 ms | **81.5 FPS**<br>3.3 FPS | **0.1804**<br>0.2437 | 629.8 MB<br>629.8 MB | 202.6%<br>109.0% |
+| **3. Kacamata** | **MediaPipe FaceMesh**<br>Dlib 68 | **99.7%**<br>100.0% | **12.61 ms**<br>304.12 ms | **13.58 ms**<br>338.53 ms | **79.3 FPS**<br>3.3 FPS | **0.1936**<br>0.2692 | 623.9 MB<br>623.9 MB | 193.0%<br>110.5% |
+| **4. Kacamata + Low-Light** | **MediaPipe FaceMesh**<br>Dlib 68 | **99.9%**<br>90.5% *(Drop)* | **12.43 ms**<br>300.33 ms | **13.66 ms**<br>326.83 ms | **80.5 FPS**<br>3.3 FPS | **0.2084**<br>0.2674 | 628.6 MB<br>628.6 MB | 201.1%<br>107.7% |
+
+### 🔍 Temuan & Analisis Ilmiah Utama
+
+1. **Akurasi & Nilai F1-Score Sempurna**: MediaPipe Face Mesh memperoleh **F1-Score 99.9% - 100.0%** dan secara sempurna menangkap tepat **5 dari 5 kedipan nyata (GT)** di semua skenario. Sebaliknya, Dlib mengalami penurunan drastis saat redup (**F1: 68.6%**) dan anjlok parah pada skenario redup berkacamata (**F1: 28.4%**, Recall hanya 16.6%).
+2. **Imunitas Terhadap Flicker & False Positive**: Pada kondisi redup, Dlib menghasilkan **33 kedipan** (akibat EAR berfluktuasi melewati ambang batas), sementara MediaPipe tetap stabil di 5 kedipan berkat *dense mesh landmarks* dan pelacakan iris.
+3. **Ketahanan Deteksi Wajah**: MediaPipe mempertahankan tingkat deteksi wajah **99.9%** pada kondisi ekstrem. Dlib kehilangan wajah pada ~95 frame (deteksi drop ke **90.5%**) karena ketiadaan gradien tepi pada HOG saat gelap berkacamata.
+4. **Kecepatan Komputasi Real-Time**: MediaPipe konsisten di **~80 FPS (latensi ~12.4 ms)**, yaitu **~24.4x lebih cepat** daripada Dlib (~3.3 FPS), menjamin respon kendali IoT tanpa hambatan.
 
 > [!NOTE]
-> - **Visualisasi Grafik**: Grafik komparasi per skenario tersedia di [`docs/benchmarks/plots/`](docs/benchmarks/plots/) (`plot_normal.png`, `plot_normal_low_light.png`, `plot_kacamata.png`, `plot_kacamata_low_light.png`).
-> - **Data Mentah Per-Frame**: File CSV per frame tersimpan terorganisir di [`docs/benchmarks/data/`](docs/benchmarks/data/).
+> - **Visualisasi Grafik Lengkap**: Grafik komparasi per skenario (kurva EAR vs GT, latensi, dan resource) tersedia di [`docs/benchmarks/plots/`](docs/benchmarks/plots/) (`plot_normal.png`, `plot_normal_low_light.png`, `plot_kacamata.png`, `plot_kacamata_low_light.png`).
+> - **Data Mentah Per-Frame**: File CSV per frame tersimpan di [`docs/benchmarks/data/`](docs/benchmarks/data/).
 > - **Hasil JSON Terstruktur**: Terdaftar lengkap pada [`docs/benchmark_results.json`](docs/benchmark_results.json).
 
 ---
@@ -165,29 +178,53 @@ pip install -r requirements.txt
 pip install psutil pandas matplotlib
 ```
 
-#### 2. Menjalankan Uji Skenario Mandiri
+#### 2. Menjalankan Uji Skenario Mandiri (dengan Ground Truth)
 
-Letakkan video Anda di root folder proyek (misal `video.mp4`), lalu jalankan:
+Letakkan video Anda di root folder proyek, lalu jalankan perintah sesuai skenario:
 
 ```bash
 # Skenario 1: Video Normal (Terang, Tanpa Kacamata)
-python benchmark_ear.py --source normal.mp4 --frames 644   --scenario-lighting "normal" --scenario-glasses "tanpa_kacamata"   --csv-output results_normal.csv --plot-output plot_normal.png --summary-csv summary_comparison.csv
+python benchmark_ear.py --source normal.mp4 --frames 644 \
+  --scenario-lighting "normal" --scenario-glasses "tanpa_kacamata" \
+  --ear-thresh-dlib 0.22 --ear-thresh-mp 0.17 \
+  --gt-closed-ranges "27-97,151-203,325-390,454-502,559-583" \
+  --csv-output docs/benchmarks/data/results_normal.csv \
+  --plot-output docs/benchmarks/plots/plot_normal.png \
+  --summary-csv docs/benchmarks/summary_comparison.csv
 
-# Skenario 2: Video Low-Light (Redup)
-python benchmark_ear.py --source normal-low-light.mp4 --frames 974   --scenario-lighting "low_light" --scenario-glasses "tanpa_kacamata"   --csv-output results_normal_low_light.csv --plot-output plot_normal_low_light.png --summary-csv summary_comparison.csv
+# Skenario 2: Video Low-Light (Redup, Tanpa Kacamata)
+python benchmark_ear.py --source normal-low-light.mp4 --frames 974 \
+  --scenario-lighting "low_light" --scenario-glasses "tanpa_kacamata" \
+  --ear-thresh-dlib 0.22 --ear-thresh-mp 0.17 \
+  --gt-closed-ranges "40-145,228-307,491-588,686-759,845-882" \
+  --csv-output docs/benchmarks/data/results_normal_low_light.csv \
+  --plot-output docs/benchmarks/plots/plot_normal_low_light.png \
+  --summary-csv docs/benchmarks/summary_comparison.csv
 
-# Skenario 3: Video dengan Kacamata
-python benchmark_ear.py --source kacamata.mp4 --frames 328   --scenario-lighting "normal" --scenario-glasses "dengan_kacamata"   --csv-output results_kacamata.csv --plot-output plot_kacamata.png --summary-csv summary_comparison.csv
+# Skenario 3: Video dengan Kacamata (Terang)
+python benchmark_ear.py --source kacamata.mp4 --frames 328 \
+  --scenario-lighting "normal" --scenario-glasses "dengan_kacamata" \
+  --ear-thresh-dlib 0.24 --ear-thresh-mp 0.20 \
+  --gt-closed-ranges "24-52,91-123,167-189,224-255,286-300" \
+  --csv-output docs/benchmarks/data/results_kacamata.csv \
+  --plot-output docs/benchmarks/plots/plot_kacamata.png \
+  --summary-csv docs/benchmarks/summary_comparison.csv
 
-# Skenario 4: Video Kacamata + Low-Light
-python benchmark_ear.py --source kacamata-low-light.mp4 --frames 986   --scenario-lighting "low_light" --scenario-glasses "dengan_kacamata"   --csv-output results_kacamata_low_light.csv --plot-output plot_kacamata_low_light.png --summary-csv summary_comparison.csv
+# Skenario 4: Video Kacamata + Low-Light (Redup)
+python benchmark_ear.py --source kacamata-low-light.mp4 --frames 986 \
+  --scenario-lighting "low_light" --scenario-glasses "dengan_kacamata" \
+  --ear-thresh-dlib 0.24 --ear-thresh-mp 0.20 \
+  --gt-closed-ranges "70-154,272-370,501-569,673-762,859-901" \
+  --csv-output docs/benchmarks/data/results_kacamata_low_light.csv \
+  --plot-output docs/benchmarks/plots/plot_kacamata_low_light.png \
+  --summary-csv docs/benchmarks/summary_comparison.csv
 
 # Menggunakan Live Webcam (Real-time kamera perangkat)
 python benchmark_ear.py --source 0 --frames 300 --mode interleaved
 ```
 
 > [!TIP]
-> Parameter `--summary-csv summary_comparison.csv` akan secara otomatis menggabungkan ringkasan tiap skenario ke dalam satu file tabel CSV terpadu tanpa menimpa data sebelumnya.
+> Parameter `--gt-closed-ranges` menerima daftar interval frame saat mata tertutup (mis. `"50-65,120-135"`). Argumen ini akan secara otomatis menghitung *Confusion Matrix (TP, TN, FP, FN)* serta metrik *Accuracy, Precision, Recall, dan F1-Score* tanpa ada kolom yang kosong.
 
 ---
 

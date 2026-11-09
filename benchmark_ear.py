@@ -91,7 +91,10 @@ def ensure_dlib_model(model_path: str, auto_download: bool = True) -> str:
     if os.path.exists(model_path):
         return model_path
 
-    alt_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "shape_predictor_68_face_landmarks.dat")
+    proj_dir = os.path.dirname(os.path.abspath(__file__))
+    if os.path.basename(proj_dir) == "scripts":
+        proj_dir = os.path.dirname(proj_dir)
+    alt_path = os.path.join(proj_dir, "models", "shape_predictor_68_face_landmarks.dat")
     if os.path.exists(alt_path):
         return alt_path
 
@@ -1037,7 +1040,10 @@ def main():
     parser.add_argument(
         "--dlib-model",
         type=str,
-        default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models", "shape_predictor_68_face_landmarks.dat"),
+        default=os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))) if os.path.basename(os.path.dirname(os.path.abspath(__file__))) == "scripts" else os.path.dirname(os.path.abspath(__file__)),
+            "models", "shape_predictor_68_face_landmarks.dat"
+        ),
         help="Path ke file shape_predictor_68_face_landmarks.dat."
     )
     

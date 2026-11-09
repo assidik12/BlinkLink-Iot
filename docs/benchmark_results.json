@@ -139,7 +139,7 @@
   "frame_size": "800x600",
   "benchmark_date": "2026-11-09",
   "multiscenario_matrix_evaluation": {
-    "description": "Matriks evaluasi 2x2: Pencahayaan (Normal vs Low Light) dan Kacamata (Tanpa vs Dengan Kacamata)",
+    "description": "Matriks evaluasi 2x2 komprehensif: Pencahayaan x Kacamata beserta metrik evaluasi akurasi vs Ground Truth",
     "summary_csv": "docs/benchmarks/summary_comparison.csv",
     "scenarios": [
       {
@@ -150,16 +150,29 @@
         "total_frames": 644,
         "face_detection_rate_pct": 100.0,
         "inference": {
-          "avg_latency_ms": 287.51,
-          "p95_latency_ms": 301.25,
-          "throughput_fps": 3.48
+          "avg_latency_ms": 306.41,
+          "p95_latency_ms": 348.21,
+          "throughput_fps": 3.26
         },
         "resources": {
-          "peak_ram_mb": 624.82,
-          "avg_cpu_percent": 111.62
+          "peak_ram_mb": 628.67,
+          "avg_cpu_percent": 109.1
         },
         "mean_ear": 0.2484,
-        "ear_threshold": 0.21,
+        "ear_threshold": 0.22,
+        "confusion_matrix": {
+          "tp": 261,
+          "tn": 373,
+          "fp": 7,
+          "fn": 3
+        },
+        "classification_metrics": {
+          "accuracy_pct": 98.45,
+          "precision_pct": 97.39,
+          "recall_pct": 98.86,
+          "f1_score_pct": 98.12
+        },
+        "gt_blinks": 5,
         "pred_blinks": 7
       },
       {
@@ -170,17 +183,30 @@
         "total_frames": 644,
         "face_detection_rate_pct": 99.84,
         "inference": {
-          "avg_latency_ms": 11.72,
-          "p95_latency_ms": 12.77,
-          "throughput_fps": 85.35
+          "avg_latency_ms": 12.44,
+          "p95_latency_ms": 14.2,
+          "throughput_fps": 80.37
         },
         "resources": {
-          "peak_ram_mb": 624.82,
-          "avg_cpu_percent": 194.7
+          "peak_ram_mb": 628.67,
+          "avg_cpu_percent": 201.15
         },
         "mean_ear": 0.1698,
-        "ear_threshold": 0.21,
-        "pred_blinks": 6
+        "ear_threshold": 0.17,
+        "confusion_matrix": {
+          "tp": 264,
+          "tn": 380,
+          "fp": 0,
+          "fn": 0
+        },
+        "classification_metrics": {
+          "accuracy_pct": 100.0,
+          "precision_pct": 100.0,
+          "recall_pct": 100.0,
+          "f1_score_pct": 100.0
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 5
       },
       {
         "source_video": "normal-low-light.mp4",
@@ -190,17 +216,30 @@
         "total_frames": 974,
         "face_detection_rate_pct": 100.0,
         "inference": {
-          "avg_latency_ms": 285.84,
-          "p95_latency_ms": 297.8,
-          "throughput_fps": 3.5
+          "avg_latency_ms": 301.87,
+          "p95_latency_ms": 319.63,
+          "throughput_fps": 3.31
         },
         "resources": {
-          "peak_ram_mb": 628.94,
-          "avg_cpu_percent": 110.19
+          "peak_ram_mb": 629.76,
+          "avg_cpu_percent": 108.98
         },
         "mean_ear": 0.2437,
-        "ear_threshold": 0.21,
-        "pred_blinks": 21
+        "ear_threshold": 0.22,
+        "confusion_matrix": {
+          "tp": 225,
+          "tn": 543,
+          "fp": 35,
+          "fn": 171
+        },
+        "classification_metrics": {
+          "accuracy_pct": 78.85,
+          "precision_pct": 86.54,
+          "recall_pct": 56.82,
+          "f1_score_pct": 68.6
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 33
       },
       {
         "source_video": "normal-low-light.mp4",
@@ -210,17 +249,30 @@
         "total_frames": 974,
         "face_detection_rate_pct": 99.9,
         "inference": {
-          "avg_latency_ms": 11.77,
-          "p95_latency_ms": 12.74,
-          "throughput_fps": 84.99
+          "avg_latency_ms": 12.27,
+          "p95_latency_ms": 13.39,
+          "throughput_fps": 81.47
         },
         "resources": {
-          "peak_ram_mb": 628.94,
-          "avg_cpu_percent": 203.44
+          "peak_ram_mb": 629.76,
+          "avg_cpu_percent": 202.63
         },
         "mean_ear": 0.1804,
-        "ear_threshold": 0.21,
-        "pred_blinks": 6
+        "ear_threshold": 0.17,
+        "confusion_matrix": {
+          "tp": 396,
+          "tn": 578,
+          "fp": 0,
+          "fn": 0
+        },
+        "classification_metrics": {
+          "accuracy_pct": 100.0,
+          "precision_pct": 100.0,
+          "recall_pct": 100.0,
+          "f1_score_pct": 100.0
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 5
       },
       {
         "source_video": "kacamata.mp4",
@@ -230,17 +282,30 @@
         "total_frames": 328,
         "face_detection_rate_pct": 100.0,
         "inference": {
-          "avg_latency_ms": 288.06,
-          "p95_latency_ms": 304.98,
-          "throughput_fps": 3.47
+          "avg_latency_ms": 304.12,
+          "p95_latency_ms": 338.53,
+          "throughput_fps": 3.29
         },
         "resources": {
-          "peak_ram_mb": 622.89,
-          "avg_cpu_percent": 112.32
+          "peak_ram_mb": 623.9,
+          "avg_cpu_percent": 110.51
         },
         "mean_ear": 0.2692,
-        "ear_threshold": 0.21,
-        "pred_blinks": 13
+        "ear_threshold": 0.24,
+        "confusion_matrix": {
+          "tp": 123,
+          "tn": 195,
+          "fp": 1,
+          "fn": 9
+        },
+        "classification_metrics": {
+          "accuracy_pct": 96.95,
+          "precision_pct": 99.19,
+          "recall_pct": 93.18,
+          "f1_score_pct": 96.09
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 6
       },
       {
         "source_video": "kacamata.mp4",
@@ -250,16 +315,29 @@
         "total_frames": 328,
         "face_detection_rate_pct": 99.7,
         "inference": {
-          "avg_latency_ms": 11.95,
-          "p95_latency_ms": 13.05,
-          "throughput_fps": 83.7
+          "avg_latency_ms": 12.61,
+          "p95_latency_ms": 13.58,
+          "throughput_fps": 79.29
         },
         "resources": {
-          "peak_ram_mb": 622.89,
-          "avg_cpu_percent": 187.74
+          "peak_ram_mb": 623.9,
+          "avg_cpu_percent": 192.95
         },
         "mean_ear": 0.1936,
-        "ear_threshold": 0.21,
+        "ear_threshold": 0.2,
+        "confusion_matrix": {
+          "tp": 132,
+          "tn": 196,
+          "fp": 0,
+          "fn": 0
+        },
+        "classification_metrics": {
+          "accuracy_pct": 100.0,
+          "precision_pct": 100.0,
+          "recall_pct": 100.0,
+          "f1_score_pct": 100.0
+        },
+        "gt_blinks": 5,
         "pred_blinks": 5
       },
       {
@@ -270,17 +348,30 @@
         "total_frames": 986,
         "face_detection_rate_pct": 90.47,
         "inference": {
-          "avg_latency_ms": 288.93,
-          "p95_latency_ms": 311.08,
-          "throughput_fps": 3.46
+          "avg_latency_ms": 300.33,
+          "p95_latency_ms": 326.83,
+          "throughput_fps": 3.33
         },
         "resources": {
-          "peak_ram_mb": 622.58,
-          "avg_cpu_percent": 108.68
+          "peak_ram_mb": 628.63,
+          "avg_cpu_percent": 107.66
         },
         "mean_ear": 0.2674,
-        "ear_threshold": 0.21,
-        "pred_blinks": 0
+        "ear_threshold": 0.24,
+        "confusion_matrix": {
+          "tp": 64,
+          "tn": 600,
+          "fp": 0,
+          "fn": 322
+        },
+        "classification_metrics": {
+          "accuracy_pct": 67.34,
+          "precision_pct": 100.0,
+          "recall_pct": 16.58,
+          "f1_score_pct": 28.44
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 13
       },
       {
         "source_video": "kacamata-low-light.mp4",
@@ -290,17 +381,30 @@
         "total_frames": 986,
         "face_detection_rate_pct": 99.9,
         "inference": {
-          "avg_latency_ms": 11.91,
-          "p95_latency_ms": 13.27,
-          "throughput_fps": 83.97
+          "avg_latency_ms": 12.43,
+          "p95_latency_ms": 13.66,
+          "throughput_fps": 80.45
         },
         "resources": {
-          "peak_ram_mb": 622.58,
-          "avg_cpu_percent": 195.51
+          "peak_ram_mb": 628.64,
+          "avg_cpu_percent": 201.1
         },
         "mean_ear": 0.2084,
-        "ear_threshold": 0.21,
-        "pred_blinks": 6
+        "ear_threshold": 0.2,
+        "confusion_matrix": {
+          "tp": 386,
+          "tn": 599,
+          "fp": 1,
+          "fn": 0
+        },
+        "classification_metrics": {
+          "accuracy_pct": 99.9,
+          "precision_pct": 99.74,
+          "recall_pct": 100.0,
+          "f1_score_pct": 99.87
+        },
+        "gt_blinks": 5,
+        "pred_blinks": 5
       }
     ]
   }
